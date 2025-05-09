@@ -4,7 +4,7 @@ Created on Thu May  8 16:11:46 2025
 
 @author: andre
 """
-
+#lol
 import streamlit as st
 import plotly.graph_objects as go
 from Traduction import t, get_translation

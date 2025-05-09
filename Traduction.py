@@ -7,7 +7,7 @@ Created on Fri May  2 10:54:23 2025
 
 def get_translation(lang):
     return {
-        "title": {"fr": "Simulation d'occupation des voies","en": "Track Occupancy Simulation","da": "Sporbesættelsessimulering"},
+        "title": {"fr": "Simulation d'occupation des voies 1","en": "Track Occupancy Simulation","da": "Sporbesættelsessimulering"},
         "add_train": {"fr": "Ajouter un train", "en": "Add a train", "da": "Tilføj et tog"},
         "Time": {"fr": "Temps", "en": "Time", "da": "Tid"},
         "train_name": {"fr": "Nom du train", "en": "Train name", "da": "Tog navn"},
