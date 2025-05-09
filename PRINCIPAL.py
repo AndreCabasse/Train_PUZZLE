@@ -107,29 +107,21 @@ with tab3:
     )
     st.plotly_chart(fig_b, use_container_width=True)
     
-    # Sélecteurs pour ajuster la plage temporelle
-    st.subheader(t("train_length_by_track"))
+    # Sélecteurs pour choisir une date et une heure spécifiques
     col1, col2 = st.columns(2)
     with col1:
-        date_debut = st.date_input(t("base_date"), st.session_state.base_time.date(), key="date_debut")
-        heure_debut = st.time_input(t("base_time"), st.session_state.base_time.time(), key="heure_debut")
+        date_instant = st.date_input(t("base_date"), st.session_state.base_time.date(), key="date_instant")
     with col2:
-        date_fin = st.date_input(t("end_date"), st.session_state.base_time.date(), key="date_fin")
-        heure_fin = st.time_input(t("end_time"), (st.session_state.base_time + timedelta(hours=24)).time(), key="heure_fin")
+        heure_instant = st.time_input(t("base_time"), st.session_state.base_time.time(), key="heure_instant")
 
-    # Combiner les dates et heures pour obtenir les plages temporelles
-    plage_debut = datetime.combine(date_debut, heure_debut)
-    plage_fin = datetime.combine(date_fin, heure_fin)
+    # Combiner la date et l'heure pour obtenir l'instant spécifique
+    instant = datetime.combine(date_instant, heure_instant)
 
-    # Vérifier que la plage est valide
-    if plage_debut >= plage_fin:
-        st.error(t("invalid_time_range"))
-    else:
-        # Afficher le graphique avec la plage temporelle sélectionnée
-        fig_trains_detaille = creer_graphique_trains_par_longueur_detaille(
-            st.session_state.simulation, t, plage_debut, plage_fin
-        )
-        st.plotly_chart(fig_trains_detaille, use_container_width=True)
+    # Afficher le graphique pour l'instant sélectionné
+    fig_trains_instant = creer_graphique_trains_par_longueur_detaille(
+        st.session_state.simulation, t, instant
+    )
+    st.plotly_chart(fig_trains_instant, use_container_width=True)
     
 with tab4:
     st.subheader(t("Statistiques globales"))

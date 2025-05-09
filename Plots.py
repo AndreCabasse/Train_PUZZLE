@@ -137,7 +137,7 @@ def creer_graphique_requirements_par_jour(requirements_par_jour, t):
 
     return fig
 
-def creer_graphique_trains_par_longueur_detaille(simulation, t, plage_debut, plage_fin):
+def creer_graphique_trains_par_longueur_detaille(simulation, t, instant):
     """
     Crée un graphique détaillé pour visualiser les trains avec des rectangles pour chaque wagon et locomotive,
     en fonction d'une plage temporelle.
@@ -145,8 +145,7 @@ def creer_graphique_trains_par_longueur_detaille(simulation, t, plage_debut, pla
     Args:
         simulation: Instance de la simulation contenant les trains et les occupations.
         t: Fonction de traduction.
-        plage_debut: Début de la plage temporelle (datetime).
-        plage_fin: Fin de la plage temporelle (datetime).
+        instant: Instant spécifique (datetime).
 
     Returns:
         Graphique Plotly.
@@ -159,69 +158,24 @@ def creer_graphique_trains_par_longueur_detaille(simulation, t, plage_debut, pla
         ("Naestved", simulation.occupation_b, simulation.numeros_voies_b),
     ]:
         for voie_idx, debut, fin, train in occupation:
-            # Filtrer les trains en fonction de la plage temporelle
-            if fin < plage_debut or debut > plage_fin:
-                continue
+            # Filtrer les trains présents à l'instant donné
+            if debut <= instant <= fin:
+                voie_label = f"{t('Track')} {numeros_voies[voie_idx]} ({depot})"
+                position_actuelle = 0  # Position de départ pour dessiner les rectangles
 
-            voie_label = f"{t('Track')} {numeros_voies[voie_idx]} ({depot})"
-            position_actuelle = 0  # Position de départ pour dessiner les rectangles
-
-            # Ajouter la locomotive à gauche si spécifié
-            if train.locomotives == 1 and train.locomotive_cote == "left":
-                fig.add_trace(go.Bar(
-                    x=[19],  # Longueur d'une locomotive
-                    y=[voie_label],
-                    base=position_actuelle,
-                    orientation='h',
-                    marker=dict(color="red", line=dict(color="black", width=1)),  # Bordure noire pour la locomotive
-                    width=0.3,  # Réduire la hauteur des rectangles
-                    name=f"{train.nom} - {t('locomotive')} 1",
-                    hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Locomotive<br>Longueur: 19m<extra></extra>"
-                ))
-                position_actuelle += 19  # Avancer la position
-
-            # Ajouter les rectangles pour les wagons
-            for i in range(train.wagons):
-                fig.add_trace(go.Bar(
-                    x=[14],  # Longueur d'un wagon
-                    y=[voie_label],
-                    base=position_actuelle,
-                    orientation='h',
-                    marker=dict(color="blue", line=dict(color="black", width=1)),  # Bordure noire pour les wagons
-                    width=0.3,  # Réduire la hauteur des rectangles
-                    name=f"{train.nom} - {t('wagon')} {i + 1}",
-                    hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Wagon {i + 1}<br>Longueur: 14m<extra></extra>"
-                ))
-                position_actuelle += 14  # Avancer la position
-
-            # Ajouter la locomotive à droite si spécifié
-            if train.locomotives == 1 and train.locomotive_cote == "right":
-                fig.add_trace(go.Bar(
-                    x=[19],  # Longueur d'une locomotive
-                    y=[voie_label],
-                    base=position_actuelle,
-                    orientation='h',
-                    marker=dict(color="red", line=dict(color="black", width=1)),  # Bordure noire pour la locomotive
-                    width=0.3,  # Réduire la hauteur des rectangles
-                    name=f"{train.nom} - {t('locomotive')} 1",
-                    hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Locomotive<br>Longueur: 19m<extra></extra>"
-                ))
-                position_actuelle += 19  # Avancer la position
-
-            # Ajouter deux locomotives si présentes
-            if train.locomotives == 2:
-                # Locomotive à gauche
-                fig.add_trace(go.Bar(
-                    x=[19],
-                    y=[voie_label],
-                    base=0,
-                    orientation='h',
-                    marker=dict(color="red", line=dict(color="black", width=1)),
-                    width=0.3,  # Réduire la hauteur des rectangles
-                    name=f"{train.nom} - {t('locomotive')} 1",
-                    hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Locomotive<br>Longueur: 19m<extra></extra>"
-                ))
-                position_actuelle += 19  # Avancer la position après la locomotive gauche
+                # Ajouter la locomotive à gauche si spécifié
+                if train.locomotives >= 1:
+                    fig.add_trace(go.Bar(
+                        x=[19],  # Longueur d'une locomotive
+                        y=[voie_label],
+                        base=position_actuelle,
+                        orientation='h',
+                        marker=dict(color="red", line=dict(color="black", width=1)),  # Bordure noire pour la locomotive
+                        width=0.3,  # Réduire la hauteur des rectangles
+                        name=f"{train.nom} - {t('locomotive')} 1",
+                        hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Locomotive<br>Longueur: 19m<extra></extra>"
+                    ))
+                    position_actuelle += 19  # Avancer la position
 
                 # Ajouter les rectangles pour les wagons
                 for i in range(train.wagons):
@@ -237,18 +191,19 @@ def creer_graphique_trains_par_longueur_detaille(simulation, t, plage_debut, pla
                     ))
                     position_actuelle += 14  # Avancer la position
 
-                # Locomotive à droite
-                fig.add_trace(go.Bar(
-                    x=[19],
-                    y=[voie_label],
-                    base=position_actuelle,
-                    orientation='h',
-                    marker=dict(color="red", line=dict(color="black", width=1)),
-                    width=0.3,  # Réduire la hauteur des rectangles
-                    name=f"{train.nom} - {t('locomotive')} 2",
-                    hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Locomotive<br>Longueur: 19m<extra></extra>"
-                ))
-                position_actuelle += 19  # Avancer la position après la locomotive droite
+                # Ajouter la locomotive à droite si spécifié
+                if train.locomotives == 2:
+                    fig.add_trace(go.Bar(
+                        x=[19],  # Longueur d'une locomotive
+                        y=[voie_label],
+                        base=position_actuelle,
+                        orientation='h',
+                        marker=dict(color="red", line=dict(color="black", width=1)),  # Bordure noire pour la locomotive
+                        width=0.3,  # Réduire la hauteur des rectangles
+                        name=f"{train.nom} - {t('locomotive')} 2",
+                        hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Locomotive<br>Longueur: 19m<extra></extra>"
+                    ))
+                    position_actuelle += 19  # Avancer la position
 
     # Configurer l'affichage du graphique
     fig.update_layout(
