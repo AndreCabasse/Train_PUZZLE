@@ -105,8 +105,16 @@ class Simulation:
             train.voie = meilleure_voie
             train.fin_attente = meilleur_debut
             occupation.append((meilleure_voie, meilleur_debut, train.depart, train))
-        else:
-            train.en_attente = True
+            if meilleure_voie is None:
+                train.en_attente = True
+                if ajouter_a_liste:
+                    self.trains.append(train)
+                    self.trains.sort(key=lambda t: t.arrivee)
+                    self.recalculer()
+                return "Le train n'a pas pu être placé dans le dépôt."
+        
+        #else:
+         #   train.en_attente = True
     
         if ajouter_a_liste:
             self.trains.append(train)

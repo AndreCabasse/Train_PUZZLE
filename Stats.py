@@ -55,7 +55,7 @@ def calculer_statistiques_globales(simulation):
         "taux_occupation_naestved": taux_occupation_naestved,
     }
 
-def calculer_requirements(trains, t):
+def calculer_requirements(trains, t, lang):
     """
     Calcule les besoins en ressources pour les trains de type Testing.
 
@@ -73,7 +73,7 @@ def calculer_requirements(trains, t):
     }
 
     for train in trains:
-        if train.type == t("testing"):  # Comparer avec la traduction du type
+        if train.type == "testing":  # Comparer avec la traduction du type
             requirements["test_drivers"] += 1
             requirements["locomotives"] += 2
             requirements["details"].append({
@@ -81,10 +81,11 @@ def calculer_requirements(trains, t):
                 "start_time": train.arrivee,
                 "end_time": train.depart
             })
+            t(train.type, lang)
 
     return requirements
 
-def regrouper_requirements_par_jour(trains, t):
+def regrouper_requirements_par_jour(trains, t, lang):
     """
     Regroupe les besoins en ressources par jour, en tenant compte des trains qui s'étendent sur plusieurs jours.
 
@@ -93,24 +94,36 @@ def regrouper_requirements_par_jour(trains, t):
         t: Fonction de traduction.
 
     Returns:
-        Dictionnaire avec les besoins par jour.
+        Dictionnaire avec les besoins par jour, incluant les détails des trains.
     """
     requirements_par_jour = {}
 
     for train in trains:
-        if train.type == t("testing"):
-            # Calculer tous les jours entre l'arrivée et le départ
+        if train.type == "testing":
             jour_courant = train.arrivee.date()
             dernier_jour = train.depart.date()
 
             while jour_courant <= dernier_jour:
                 if jour_courant not in requirements_par_jour:
-                    requirements_par_jour[jour_courant] = {"test_drivers": 0, "locomotives": 0}
+                    requirements_par_jour[jour_courant] = {
+                        "test_drivers": 0,
+                        "locomotives": 0,
+                        "details": []
+                    }
                 requirements_par_jour[jour_courant]["test_drivers"] += 1
                 requirements_par_jour[jour_courant]["locomotives"] += 2
+                # Ajoute le détail du train pour ce jour
+                requirements_par_jour[jour_courant]["details"].append({
+                    "train_name": train.nom,
+                    "start_time": train.arrivee.strftime("%H:%M") if train.arrivee.date() == jour_courant else "--:--",
+                    "end_time": train.depart.strftime("%H:%M") if train.depart.date() == jour_courant else "--:--"
+                })
                 jour_courant += timedelta(days=1)
 
     # Supprimer les jours sans besoins réels (au cas où)
-    requirements_par_jour = {jour: besoins for jour, besoins in requirements_par_jour.items() if besoins["test_drivers"] > 0 or besoins["locomotives"] > 0}
+    requirements_par_jour = {
+        jour: besoins for jour, besoins in requirements_par_jour.items()
+        if besoins["test_drivers"] > 0 or besoins["locomotives"] > 0
+    }
 
     return requirements_par_jour

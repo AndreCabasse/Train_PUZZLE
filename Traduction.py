@@ -69,30 +69,20 @@ def get_translation(lang):
             "en": "Unable to transfer train {name} to depot {depot}.",
             "da": "Kan ikke overføre toget {name} til depotet {depot}."
         },
+        "train_removed": {
+            "fr": "Le train {name} a été supprimé.",
+            "en": "The train {name} has been removed.",
+            "da": "Toget er blevet aflyst."
+        },
         "invalid_train_length": {
             "fr": "La longueur du train doit être supérieure à 0.",
             "en": "The train length must be greater than 0.",
             "da": "Togets længde skal være større end 0."
         },
-        "departure_after_arrival_error": {
-            "fr": "L'heure de départ doit être postérieure à l'heure d'arrivée.",
-            "en": "Departure time must be after arrival time.",
-            "da": "Afgangstid skal være efter ankomsttid."
-        },
         "train_not_placed": {
             "fr": "Le train {name} n'a pas pu être placé dans le dépôt {depot}.",
             "en": "The train {name} could not be placed in depot {depot}.",
             "da": "Toget {name} kunne ikke placeres i depotet {depot}."
-        },
-        "transfer_failed": {
-            "fr": "Impossible de transférer le train {name} au dépôt {depot}.",
-            "en": "Unable to transfer train {name} to depot {depot}.",
-            "da": "Kan ikke overføre toget {name} til depotet {depot}."
-        },
-        "train_transferred": {
-            "fr": "Le train {name} a été transféré au dépôt {depot}.",
-            "en": "Train {name} has been transferred to depot {depot}.",
-            "da": "Toget {name} er blevet overført til depotet {depot}."
         },
         "requirements": {
             "fr": "Besoins",
@@ -103,11 +93,6 @@ def get_translation(lang):
             "fr": "Conducteurs de test",
             "en": "Test drivers",
             "da": "Testførere"
-        },
-        "locomotives": {
-            "fr": "Locomotives",
-            "en": "Locomotives",
-            "da": "Lokomotiver"
         },
         "details": {
             "fr": "Détails",
@@ -300,6 +285,11 @@ def get_translation(lang):
         "en": "Wagon added successfully.",
         "da": "Vogn tilføjet med succes."
     },
+    "Gestion des voies": {
+        "fr": "Gestion des voies",
+        "en": "Tracks Management",
+        "da": "Banestyring"
+    },
     "success_delete": {
         "fr": "Élément supprimé avec succès.",
         "en": "Element deleted successfully.",
@@ -317,9 +307,59 @@ def get_translation(lang):
     },
 
     "reset_game": {"fr": "Réinitialiser le jeu", "en": "Reset game", "da": "Nulstil spil"},
+    "Langue": {
+    "fr": "Langue",
+    "en": "Language",
+    "da": "Sprog"
+},
+"Statistiques": {
+    "fr": "Statistiques",
+    "en": "Statistics",
+    "da": "Statistik"
+},
+"Depot de Glostrup": {
+    "fr": "Dépôt de Glostrup",
+    "en": "Glostrup Depot",
+    "da": "Glostrup Depot"
+},
+"Depot de Naestved": {
+    "fr": "Dépôt de Naestved",
+    "en": "Naestved Depot",
+    "da": "Naestved Depot"
+},
+"Depot Naestved": {
+    "fr": "Dépôt de Naestved",
+    "en": "Naestved Depot",
+    "da": "Naestved Depot"
+},
+"simulation_reset": {
+    "fr": "Simulation réinitialisée.",
+    "en": "Simulation reset.",
+    "da": "Simulering nulstillet."
+},
+"Nom": {
+    "fr": "Nom",
+    "en": "Name",
+    "da": "Navn"
+},
+"Dépôt": {
+    "fr": "Dépôt",
+    "en": "Depot",
+    "da": "Depot"
+},
+"train_schedule_updated": {
+    "fr": "Les horaires du train {name} ont été mis à jour.",
+    "en": "The schedule for train {name} has been updated.",
+    "da": "Togets tidsplan for {name} er blevet opdateret."
+},
+"track_full_warning": {
+    "fr": "La voie est pleine, impossible d'ajouter un wagon.",
+    "en": "The track is full, cannot add a wagon.",
+    "da": "Sporret er fuldt, kan ikke tilføje en vogn."
+
+},
 
 }
-
 def t(key, lang, **kwargs):
     translations = get_translation(lang)
     return translations.get(key, {}).get(lang, key).format(**kwargs)
