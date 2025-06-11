@@ -99,6 +99,11 @@ def afficher_formulaire_ajout(simulation, lang, t):
         st.markdown("#### " + t("file_preview", lang))
         st.dataframe(df_import.head(), use_container_width=True)
         if st.button(t("add_imported_trains", lang)):
+            # Correction : calculer l'ID max avant la boucle
+            if simulation.trains:
+                next_id = max(train.id for train in simulation.trains) + 1
+            else:
+                next_id = 0
             for _, row in df_import.iterrows():
                 try:
                     def get_col(*names):
@@ -106,15 +111,15 @@ def afficher_formulaire_ajout(simulation, lang, t):
                             if name in row:
                                 return row[name]
                         return None
-    
+
                     locomotive_cote = get_col("Côté sans locomotive", "Locomotive opposite side", "Lokomotivens side")
                     if isinstance(locomotive_cote, str):
                         locomotive_cote = locomotive_cote.strip().lower()
                         if locomotive_cote not in ["left", "right"]:
                             locomotive_cote = None
-    
+
                     train = Train(
-                        id=len(simulation.trains),
+                        id=next_id,
                         nom=get_col("Nom", "Train name", "Tog navn", "Train"),
                         wagons=int(get_col("Nombre de wagons", "Number of wagons", "Antal vogne", "wagons") or 1),
                         locomotives=int(get_col("Nombre de locomotives", "Number of locomotives", "Antal lokomotiver", "locomotives") or 1),
@@ -123,14 +128,21 @@ def afficher_formulaire_ajout(simulation, lang, t):
                         depot=get_col("Dépôt", "Depot", "Depot") or "Glostrup",
                         type=(get_col("Type de train", "Train type", "Togtype", "Type") or "storage").lower()
                     )
-                    train.electrique = bool(get_col("Électrique", "Electric", "Elektrisk", False))
+                    next_id += 1  # Incrémenter pour le prochain train
+
+                    # Conversion robuste pour le booléen électrique
+                    val = get_col("Électrique", "Electric", "Elektrisk", False)
+                    if isinstance(val, str):
+                        val = val.strip().lower() in ["true", "1", "yes", "oui"]
+                    train.electrique = bool(val)
+
                     train.locomotive_cote = locomotive_cote
                     simulation.ajouter_train(train, train.depot)
                 except Exception as e:
                     st.warning(f"{t('import_error_row', lang)} {row.to_dict()}: {e}")
             st.success(t("import_success", lang))
             st.rerun()
-    
+            
         st.markdown("#### " + t("import_example_title", lang))
         st.info(t("import_example_help", lang))
     
