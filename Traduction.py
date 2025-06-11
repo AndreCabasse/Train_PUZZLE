@@ -356,9 +356,103 @@ def get_translation(lang):
     "fr": "La voie est pleine, impossible d'ajouter un wagon.",
     "en": "The track is full, cannot add a wagon.",
     "da": "Sporret er fuldt, kan ikke tilføje en vogn."
-
 },
+    "Train Nom": {"fr": "Nom du train", "en": "Train name", "da": "Tog navn"},
+    "Nombre de wagons": {"fr": "Nombre de wagons", "en": "Number of wagons", "da": "Antal vogne"},
+    "Nombre de locomotives": {"fr": "Nombre de locomotives", "en": "Number of locomotives", "da": "Antal lokomotiver"},
+    "Heure d'arrivée": {"fr": "Heure d'arrivée", "en": "Arrival time", "da": "Ankomsttid"},
+    "Heure de départ": {"fr": "Heure de départ", "en": "Departure time", "da": "Afgangstid"},
+    "Type de train": {"fr": "Type de train", "en": "Train type", "da": "Togtype"},
+    "Électrique": {"fr": "Électrique", "en": "Electric", "da": "Elektrisk"},
+    "Côté sans locomotive": {"fr": "Côté sans locomotive", "en": "Locomotive opposite side", "da": "Lokomotivens side"},
 
+    # --- Interface d'import ---
+    "Importer un fichier CSV ou Excel": {
+        "fr": "Importer un fichier CSV ou Excel",
+        "en": "Import a CSV or Excel file",
+        "da": "Importer en CSV- eller Excel-fil"
+    },
+    "Ajouter ces trains à la simulation": {
+        "fr": "Ajouter ces trains à la simulation",
+        "en": "Add these trains to the simulation",
+        "da": "Tilføj disse tog til simuleringen"
+    },
+    "Import terminé.": {
+        "fr": "Import terminé.",
+        "en": "Import finished.",
+        "da": "Import færdig."
+    },
+    "Exemple de tableau à importer (Excel ou CSV)": {
+        "fr": "Exemple de tableau à importer (Excel ou CSV)",
+        "en": "Example of table to import (Excel or CSV)",
+        "da": "Eksempel på tabel til import (Excel eller CSV)"
+    },
+    "Colonnes acceptées (vous pouvez utiliser n'importe quelle langue) :": {
+        "fr": "Colonnes acceptées (vous pouvez utiliser n'importe quelle langue) :",
+        "en": "Accepted columns (you can use any language):",
+        "da": "Accepterede kolonner (du kan bruge et hvilket som helst sprog):"
+    },
+    # --- Messages d'erreur ou succès ---
+    "Erreur sur la ligne": {
+        "fr": "Erreur sur la ligne",
+        "en": "Error on row",
+        "da": "Fejl på række"
+    },
+    "import_trains": {
+    "fr": "Importer des trains",
+    "en": "Import trains",
+    "da": "Importer tog"
+    },
+    "import_file": {
+        "fr": "Importer un fichier CSV ou Excel",
+        "en": "Import a CSV or Excel file",
+        "da": "Importer en CSV- eller Excel-fil"
+    },
+    "add_imported_trains": {
+        "fr": "Ajouter ces trains à la simulation",
+        "en": "Add these trains to the simulation",
+        "da": "Tilføj disse tog til simuleringen"
+    },
+    "import_success": {
+        "fr": "Import terminé.",
+        "en": "Import finished.",
+        "da": "Import færdig."
+    },
+    "import_error_row": {
+        "fr": "Erreur sur la ligne",
+        "en": "Error on row",
+        "da": "Fejl på række"
+    },
+    "import_example_title": {
+        "fr": "Exemple de tableau à importer (Excel ou CSV)",
+        "en": "Example of table to import (Excel or CSV)",
+        "da": "Eksempel på tabel til import (Excel eller CSV)"
+    },
+    "import_example_help": {
+        "fr": "Voici un exemple de tableau que vous pouvez importer. Les noms de colonnes doivent correspondre à ceux affichés.",
+        "en": "Here is an example of a table you can import. The column names must match those shown.",
+        "da": "Her er et eksempel på en tabel, du kan importere. Kolonnenavnene skal svare til dem, der vises."
+    },
+    "see_example_table": {
+        "fr": "Voir l'exemple de tableau ci-dessous.",
+        "en": "See the example table below.",
+        "da": "Se eksempeltabellen nedenfor."
+    },
+    "add_train_manually": {
+        "fr": "Ajouter un train manuellement",
+        "en": "Add a train manually",
+        "da": "Tilføj et tog manuelt"
+    },
+    "file_preview": {
+        "fr": "Aperçu du fichier importé",
+        "en": "Preview of the imported file",
+        "da": "Forhåndsvisning af den importerede fil"
+    },
+    "import_columns_info": {
+        "fr": "Vous pouvez utiliser les noms de colonnes en français, anglais ou danois.",
+        "en": "You can use column names in French, English or Danish.",
+        "da": "Du kan bruge kolonnenavne på fransk, engelsk eller dansk."
+    }
 }
 def t(key, lang, **kwargs):
     translations = get_translation(lang)

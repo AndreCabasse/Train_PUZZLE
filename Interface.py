@@ -89,40 +89,71 @@ def afficher_formulaire_ajout(simulation, lang, t):
             st.rerun()
             
     # --- Import de trains depuis un fichier CSV ou Excel ---
-    st.markdown("### Importer des trains")
-    uploaded_file = st.file_uploader("Importer un fichier CSV ou Excel", type=["csv", "xlsx"])
+    st.markdown("### " + t("import_trains", lang))
+    uploaded_file = st.file_uploader(t("import_file", lang), type=["csv", "xlsx"])
     if uploaded_file:
         if uploaded_file.name.endswith(".csv"):
             df_import = pd.read_csv(uploaded_file, sep=None, engine="python")
         else:
             df_import = pd.read_excel(uploaded_file)
+        st.markdown("#### " + t("file_preview", lang))
         st.dataframe(df_import.head(), use_container_width=True)
-        if st.button("Ajouter ces trains à la simulation"):
+        if st.button(t("add_imported_trains", lang)):
             for _, row in df_import.iterrows():
                 try:
-                    locomotive_cote = row.get("Côté sans locomotive", row.get("Locomotive opposite side", None))
+                    def get_col(*names):
+                        for name in names:
+                            if name in row:
+                                return row[name]
+                        return None
+    
+                    locomotive_cote = get_col("Côté sans locomotive", "Locomotive opposite side", "Lokomotivens side")
                     if isinstance(locomotive_cote, str):
                         locomotive_cote = locomotive_cote.strip().lower()
                         if locomotive_cote not in ["left", "right"]:
                             locomotive_cote = None
-                    #train.locomotive_cote = locomotive_cote
+    
                     train = Train(
                         id=len(simulation.trains),
-                        nom=row.get("Nom", row.get("Train", "")),
-                        wagons=int(row.get("Nombre de wagons", row.get("wagons", 1))),
-                        locomotives=int(row.get("Nombre de locomotives", row.get("locomotives", 1))),
-                        arrivee=pd.to_datetime(row.get("Heure d'arrivée", row.get("Arrival"))),
-                        depart=pd.to_datetime(row.get("Heure de départ", row.get("Departure"))),
-                        depot=row.get("Dépôt", row.get("Depot", "Glostrup")),
-                        type=row.get("Type de train", row.get("Type", "storage")).lower()
+                        nom=get_col("Nom", "Train name", "Tog navn", "Train"),
+                        wagons=int(get_col("Nombre de wagons", "Number of wagons", "Antal vogne", "wagons") or 1),
+                        locomotives=int(get_col("Nombre de locomotives", "Number of locomotives", "Antal lokomotiver", "locomotives") or 1),
+                        arrivee=pd.to_datetime(get_col("Heure d'arrivée", "Arrival time", "Ankomsttid", "Arrival")),
+                        depart=pd.to_datetime(get_col("Heure de départ", "Departure time", "Afgangstid", "Departure")),
+                        depot=get_col("Dépôt", "Depot", "Depot") or "Glostrup",
+                        type=(get_col("Type de train", "Train type", "Togtype", "Type") or "storage").lower()
                     )
-                    train.electrique = bool(row.get("Électrique", row.get("Electric", False)))
-                    train.locomotive_cote = locomotive_cote  # <-- Ajout ici
+                    train.electrique = bool(get_col("Électrique", "Electric", "Elektrisk", False))
+                    train.locomotive_cote = locomotive_cote
                     simulation.ajouter_train(train, train.depot)
                 except Exception as e:
-                    st.warning(f"Erreur sur la ligne {row.to_dict()}: {e}")
-            st.success("Import terminé.")
+                    st.warning(f"{t('import_error_row', lang)} {row.to_dict()}: {e}")
+            st.success(t("import_success", lang))
             st.rerun()
+    
+        st.markdown("#### " + t("import_example_title", lang))
+        st.info(t("import_example_help", lang))
+    
+    # Afficher l'exemple de tableau même si aucun fichier n'est uploadé
+    import_columns = [
+        "Train Nom", "Nombre de wagons", "Nombre de locomotives", "Heure d'arrivée", "Heure de départ",
+        "Dépôt", "Type de train", "Électrique", "Côté sans locomotive"
+    ]
+    exemple_row = {
+        "Train Nom": "Train A",
+        "Nombre de wagons": 10,
+        "Nombre de locomotives": 1,
+        "Heure d'arrivée": "2025-06-12 08:00",
+        "Heure de départ": "2025-06-12 12:00",
+        "Dépôt": "Glostrup",
+        "Type de train": "testing",
+        "Électrique": True,
+        "Côté sans locomotive": "left"
+    }
+    translated_columns = [t(col, lang) for col in import_columns]
+    exemple_df = pd.DataFrame([[exemple_row[col] for col in import_columns]], columns=translated_columns)
+    st.dataframe(exemple_df, use_container_width=True)
+    st.caption(t("import_columns_info", lang))
                 
 def afficher_tableau_trains(trains, simulation, t, lang):
     """Affiche le tableau des trains."""
