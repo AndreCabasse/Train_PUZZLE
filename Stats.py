@@ -9,17 +9,16 @@ from Traduction import t, get_translation
 
 def calculer_temps_attente(train):
     """Calcule le temps d'attente d'un train en minutes."""
-    if train.en_attente and train.fin_attente and train.debut_attente:
-        return (train.fin_attente - train.debut_attente).total_seconds() / 60
+    if train.fin_attente and train.debut_attente:
+        return max(0, (train.fin_attente - train.debut_attente).total_seconds() / 60)
     return 0
 
 def calculer_temps_moyen_attente(trains):
     """Calcule le temps moyen d'attente des trains."""
-    trains_en_attente = [train for train in trains if train.en_attente]
-    if not trains_en_attente:
+    if not trains:
         return 0
-    total_attente = sum(calculer_temps_attente(train) for train in trains_en_attente)
-    return round(total_attente / len(trains_en_attente), 2)
+    total_attente = sum(calculer_temps_attente(train) for train in trains)
+    return round(total_attente / len(trains), 2)
 
 def calculer_taux_occupation(occupation, numeros_voies):
     """Calcule le taux d'occupation des voies."""

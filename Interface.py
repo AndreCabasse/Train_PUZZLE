@@ -87,17 +87,42 @@ def afficher_formulaire_ajout(simulation, lang, t):
             st.session_state.train_added = True
             st.session_state.last_train_name = nom
             st.rerun()
-
-       # if depart <= arrivee:
-        #    st.error(erreur)
-       #     return
-
-      #  if erreur:
-       #     st.error(erreur)
-      #  else:
-            # Stocker l'indicateur et le nom du train ajouté
-      #      st.session_state.train_added = True
-      #      st.session_state.last_train_name = nom
+            
+    # --- Import de trains depuis un fichier CSV ou Excel ---
+    st.markdown("### Importer des trains")
+    uploaded_file = st.file_uploader("Importer un fichier CSV ou Excel", type=["csv", "xlsx"])
+    if uploaded_file:
+        if uploaded_file.name.endswith(".csv"):
+            df_import = pd.read_csv(uploaded_file, sep=None, engine="python")
+        else:
+            df_import = pd.read_excel(uploaded_file)
+        st.dataframe(df_import.head(), use_container_width=True)
+        if st.button("Ajouter ces trains à la simulation"):
+            for _, row in df_import.iterrows():
+                try:
+                    locomotive_cote = row.get("Côté sans locomotive", row.get("Locomotive opposite side", None))
+                    if isinstance(locomotive_cote, str):
+                        locomotive_cote = locomotive_cote.strip().lower()
+                        if locomotive_cote not in ["left", "right"]:
+                            locomotive_cote = None
+                    #train.locomotive_cote = locomotive_cote
+                    train = Train(
+                        id=len(simulation.trains),
+                        nom=row.get("Nom", row.get("Train", "")),
+                        wagons=int(row.get("Nombre de wagons", row.get("wagons", 1))),
+                        locomotives=int(row.get("Nombre de locomotives", row.get("locomotives", 1))),
+                        arrivee=pd.to_datetime(row.get("Heure d'arrivée", row.get("Arrival"))),
+                        depart=pd.to_datetime(row.get("Heure de départ", row.get("Departure"))),
+                        depot=row.get("Dépôt", row.get("Depot", "Glostrup")),
+                        type=row.get("Type de train", row.get("Type", "storage")).lower()
+                    )
+                    train.electrique = bool(row.get("Électrique", row.get("Electric", False)))
+                    train.locomotive_cote = locomotive_cote  # <-- Ajout ici
+                    simulation.ajouter_train(train, train.depot)
+                except Exception as e:
+                    st.warning(f"Erreur sur la ligne {row.to_dict()}: {e}")
+            st.success("Import terminé.")
+            st.rerun()
                 
 def afficher_tableau_trains(trains, simulation, t, lang):
     """Affiche le tableau des trains."""
@@ -108,10 +133,9 @@ def afficher_tableau_trains(trains, simulation, t, lang):
         data = []
         for train in trains:
             attente = (
-    (train.fin_attente - train.debut_attente).total_seconds() / 60
-    if train.en_attente and train.fin_attente and train.debut_attente
-    else None
-)
+                (train.fin_attente - train.debut_attente).total_seconds() / 60
+                if train.fin_attente and train.debut_attente else 0
+            )
             voie_num = (
                 simulation.numeros_voies_a[train.voie]
                 if train.depot == "Glostrup" and train.voie is not None
@@ -155,11 +179,27 @@ def afficher_modification_train(trains, simulation, t, lang):
                 new_departure = datetime.combine(new_departure_date, new_departure_time)
 
                 if new_departure > new_arrival:
+                    etat_avant = train.__dict__.copy()
+                    # Validation avancée
+                    simulation.trains.remove(train)
                     train.arrivee = new_arrival
                     train.depart = new_departure
-                    simulation.recalculer()
-                    st.success(t("train_schedule_updated", lang, name=train.nom))
-                    st.rerun()
+                    erreur = simulation.ajouter_train(train, train.depot, optimiser=True)
+                    if erreur:
+                        # Restaure l'ancien état si conflit
+                        for k, v in etat_avant.items():
+                            setattr(train, k, v)
+                        simulation.trains.append(train)
+                        st.error("Modification impossible : conflit détecté.")
+                    else:
+                        simulation.historique.append({
+                            "action": "modification",
+                            "train_id": train.id,
+                            "etat_avant": etat_avant,
+                            "etat_apres": train.__dict__.copy()
+                        })
+                        st.success(t("train_schedule_updated", lang, name=train.nom))
+                        st.rerun()
                 else:
                     st.error(t("departure_after_arrival_error", lang))
 
@@ -170,13 +210,24 @@ def afficher_suppression_train(trains, simulation, t, lang):
     if selected_option:
         train_id = int(selected_option.split("(T")[1][:-1])  # Extraire l'ID numérique du train
         if st.button(t("remove", lang)):
+            
+            # Récupérer l'état avant suppression
+            train_suppr = next((train for train in simulation.trains if train.id == train_id), None)
+            etat_avant = train_suppr.__dict__.copy() if train_suppr else None
+            
             # Supprimer le train des occupations
+            
             for occupation in [simulation.occupation_a, simulation.occupation_b]:
                 occupation[:] = [entry for entry in occupation if entry[3].id != train_id]
 
             # Supprimer le train de la liste des trains
             simulation.trains = [train for train in simulation.trains if train.id != train_id]
-
+            simulation.historique.append({
+                "action": "suppression",
+                "train_id": train_id,
+                "etat_avant": etat_avant,
+                "etat_apres": None
+            })
             # Recalculer la simulation
             simulation.recalculer()
             st.success(t("train_removed", lang, name=selected_option))
