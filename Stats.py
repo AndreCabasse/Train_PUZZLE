@@ -8,31 +8,63 @@ from datetime import timedelta
 from Traduction import t, get_translation
 
 def calculer_temps_attente(train):
-    """Calcule le temps d'attente d'un train en minutes."""
+    """
+    FR : Calcule le temps d'attente d'un train en minutes.
+    EN : Compute the waiting time of a train in minutes.
+    """
     if train.fin_attente and train.debut_attente:
         return max(0, (train.fin_attente - train.debut_attente).total_seconds() / 60)
     return 0
 
 def calculer_temps_moyen_attente(trains):
-    """Calcule le temps moyen d'attente des trains."""
+    """
+    FR : Calcule le temps moyen d'attente des trains.
+    EN : Compute the average waiting time of all trains.
+    """
     if not trains:
         return 0
     total_attente = sum(calculer_temps_attente(train) for train in trains)
     return round(total_attente / len(trains), 2)
 
 def calculer_taux_occupation(occupation, numeros_voies):
-    """Calcule le taux d'occupation des voies."""
+    """
+    FR : Calcule le taux d'occupation des voies.
+    EN : Compute the track occupation rate.
+    Args:
+        FR : occupation: Liste des tuples (voie, début, fin, train)
+        EN : occupation: List of tuples (track, start, end, train)
+        numeros_voies: 
+            FR : Liste des numéros de voies 
+            EN : List of track numbers
+    Returns:
+        FR : Pourcentage d'occupation des voies  
+        EN : Percentage of track occupation
+    """
     if not occupation:
         return 0
 
+    # Durée totale de la période considérée (en minutes)
+    # Total duration of the considered period (in minutes)
     duree_totale = (max(fin for _, _, fin, _ in occupation) - min(debut for _, debut, _, _ in occupation)).total_seconds() / 60
+    # Somme des durées d'occupation de toutes les voies (en minutes)
+    # Sum of all occupation durations (in minutes)
     duree_occupee = sum((fin - debut).total_seconds() / 60 for _, debut, fin, _ in occupation)
     nb_voies = len(numeros_voies)
 
     return round((duree_occupee / (duree_totale * nb_voies)) * 100, 2)
 
 def calculer_statistiques_globales(simulation):
-    """Calcule les statistiques globales pour la simulation."""
+    """
+    FR : Calcule les statistiques globales pour la simulation.
+    EN : Compute global statistics for the simulation.
+    Args:
+        simulation: 
+            FR : Objet Simulation
+            EN : Simulation object
+    Returns:
+        FR : Dictionnaire des statistiques
+        EN : Dictionary of statistics
+    """
     trains = simulation.trains
     trains_glostrup = [train for train in trains if train.depot == "Glostrup"]
     trains_naestved = [train for train in trains if train.depot == "Naestved"]
@@ -41,38 +73,42 @@ def calculer_statistiques_globales(simulation):
     temps_moyen_attente = calculer_temps_moyen_attente(trains)
     taux_occupation_glostrup = calculer_taux_occupation(simulation.occupation_a, simulation.numeros_voies_a)
     taux_occupation_naestved = calculer_taux_occupation(simulation.occupation_b, simulation.numeros_voies_b)
-    taux_occupation_global = calculer_taux_occupation(simulation.occupation_a + simulation.occupation_b, simulation.numeros_voies_a + simulation.numeros_voies_b)
+    taux_occupation_global = calculer_taux_occupation(
+        simulation.occupation_a + simulation.occupation_b,
+        simulation.numeros_voies_a + simulation.numeros_voies_b
+    )
 
     return {
-        "total_trains": len(trains),
-        "trains_glostrup": len(trains_glostrup),
-        "trains_naestved": len(trains_naestved),
-        "trains_electriques": len(trains_electriques),
-        "temps_moyen_attente": temps_moyen_attente,
-        "taux_occupation_global": taux_occupation_global,
-        "taux_occupation_glostrup": taux_occupation_glostrup,
-        "taux_occupation_naestved": taux_occupation_naestved,
+        "total_trains": len(trains),  # Nombre total de trains / Total number of trains
+        "trains_glostrup": len(trains_glostrup),  # Trains à Glostrup / Trains at Glostrup
+        "trains_naestved": len(trains_naestved),  # Trains à Naestved / Trains at Naestved
+        "trains_electriques": len(trains_electriques),  # Trains électriques / Electric trains
+        "temps_moyen_attente": temps_moyen_attente,  # Temps moyen d'attente / Average waiting time
+        "taux_occupation_global": taux_occupation_global,  # Taux d'occupation global / Global occupation rate
+        "taux_occupation_glostrup": taux_occupation_glostrup,  # Taux d'occupation Glostrup / Glostrup occupation rate
+        "taux_occupation_naestved": taux_occupation_naestved,  # Taux d'occupation Naestved / Naestved occupation rate
     }
 
 def calculer_requirements(trains, t, lang):
     """
-    Calcule les besoins en ressources pour les trains de type Testing.
-
+    FR : Calcule les besoins en ressources pour les trains de type Testing.
+    EN : Compute resource requirements for 'Testing' trains.
     Args:
-        trains: Liste des trains.
-        t: Fonction de traduction.
-
+        trains: Liste des trains / List of trains
+        t: Fonction de traduction / Translation function
+        lang: Langue / Language
     Returns:
-        Dictionnaire contenant les besoins en "test drivers" et locomotives.
+        FR : Dictionnaire contenant les besoins en "test drivers" et locomotives.
+        EN : Dictionary with "test drivers" and locomotives requirements.
     """
     requirements = {
         "test_drivers": 0,
         "locomotives": 0,
-        "details": []  # Détails par train
+        "details": []  # Détails par train / Details per train
     }
 
     for train in trains:
-        if train.type == "testing":  # Comparer avec la traduction du type
+        if train.type == "testing":  # Comparer avec la traduction du type / Compare with translated type if needed
             requirements["test_drivers"] += 1
             requirements["locomotives"] += 2
             requirements["details"].append({
@@ -80,20 +116,21 @@ def calculer_requirements(trains, t, lang):
                 "start_time": train.arrivee,
                 "end_time": train.depart
             })
-            t(train.type, lang)
+            t(train.type, lang)  # Appel de traduction (inutile ici sauf pour effet de bord)
 
     return requirements
 
 def regrouper_requirements_par_jour(trains, t, lang):
     """
-    Regroupe les besoins en ressources par jour, en tenant compte des trains qui s'étendent sur plusieurs jours.
-
+    FR : Regroupe les besoins en ressources par jour, en tenant compte des trains qui s'étendent sur plusieurs jours.
+    EN : Group resource requirements per day, considering trains spanning several days.
     Args:
-        trains: Liste des trains.
-        t: Fonction de traduction.
-
+        trains: Liste des trains / List of trains
+        t: Fonction de traduction / Translation function
+        lang: Langue / Language
     Returns:
-        Dictionnaire avec les besoins par jour, incluant les détails des trains.
+        FR : Dictionnaire avec les besoins par jour, incluant les détails des trains.
+        EN : Dictionary with requirements per day, including train details.
     """
     requirements_par_jour = {}
 
@@ -102,6 +139,8 @@ def regrouper_requirements_par_jour(trains, t, lang):
             jour_courant = train.arrivee.date()
             dernier_jour = train.depart.date()
 
+            # Boucle sur chaque jour couvert par le train
+            # Loop over each day covered by the train
             while jour_courant <= dernier_jour:
                 if jour_courant not in requirements_par_jour:
                     requirements_par_jour[jour_courant] = {
@@ -111,7 +150,7 @@ def regrouper_requirements_par_jour(trains, t, lang):
                     }
                 requirements_par_jour[jour_courant]["test_drivers"] += 1
                 requirements_par_jour[jour_courant]["locomotives"] += 2
-                # Ajoute le détail du train pour ce jour
+                # Ajoute le détail du train pour ce jour / Add train detail for this day
                 requirements_par_jour[jour_courant]["details"].append({
                     "train_name": train.nom,
                     "start_time": train.arrivee.strftime("%H:%M") if train.arrivee.date() == jour_courant else "--:--",
@@ -120,6 +159,7 @@ def regrouper_requirements_par_jour(trains, t, lang):
                 jour_courant += timedelta(days=1)
 
     # Supprimer les jours sans besoins réels (au cas où)
+    # Remove days without actual requirements (just in case)
     requirements_par_jour = {
         jour: besoins for jour, besoins in requirements_par_jour.items()
         if besoins["test_drivers"] > 0 or besoins["locomotives"] > 0

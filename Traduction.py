@@ -38,421 +38,119 @@ def get_translation(lang):
         "electric_train": {"fr": "🚆 Train électrique", "en": "🚆 Electric train", "da": "🚆 Elektrisk tog"},
         "select_depot": {"fr": "Sélectionnez un dépôt", "en": "Select a depot", "da": "Vælg et depot"},
         "modify_train": {"fr": "Modifier un train", "en": "Modify a train", "da": "Rediger et tog"},
+        "download_pdf": {"fr": "Télécharger en PDF", "en": "Download as PDF", "da": "Download som PDF"},
         "delete_train": {"fr": "Supprimer un train", "en": "Delete a train", "da": "Slet et tog"},
         "select_train_to_modify": {"fr": "Sélectionnez un train à modifier", "en": "Select a train to modify", "da": "Vælg et tog til redigering"},
         "select_train_to_delete": {"fr": "Sélectionnez un train à supprimer", "en": "Select a train to delete", "da": "Vælg et tog til sletning"},
         "apply_changes": {"fr": "Appliquer les modifications", "en": "Apply changes", "da": "Anvend ændringer"},
         "train_updated": {"fr": "Train {id} mis à jour avec succès !", "en": "Train {id} successfully updated!", "da": "Tog {id} opdateret med succes!"},
-        "departure_after_arrival_error": {
-            "fr": "L'heure de départ doit être postérieure à l'heure d'arrivée.",
-            "en": "Departure time must be after arrival time.",
-            "da": "Afgangstid skal være efter ankomsttid."
-        },
+        "departure_after_arrival_error": {"fr": "L'heure de départ doit être postérieure à l'heure d'arrivée.","en": "Departure time must be after arrival time.","da": "Afgangstid skal være efter ankomsttid."},
         "delete": {"fr": "Supprimer", "en": "Delete", "da": "Slet"},
-        "security_settings": {
-            "fr": "Paramètres de sécurité",
-            "en": "Security Settings",
-            "da": "Sikkerhedsindstillinger"
-        },
-        "transfer_train": {
-            "fr": "Voulez-vous transférer le train {name} au dépôt {depot} ?",
-            "en": "Do you want to transfer train {name} to depot {depot}?",
-            "da": "Vil du overføre toget {name} til depotet {depot}?"
-        },
-        "train_transferred": {
-            "fr": "Le train {name} a été transféré au dépôt {depot}.",
-            "en": "Train {name} has been transferred to depot {depot}.",
-            "da": "Toget {name} er blevet overført til depotet {depot}."
-        },
-        "transfer_failed": {
-            "fr": "Impossible de transférer le train {name} au dépôt {depot}.",
-            "en": "Unable to transfer train {name} to depot {depot}.",
-            "da": "Kan ikke overføre toget {name} til depotet {depot}."
-        },
-        "train_removed": {
-            "fr": "Le train {name} a été supprimé.",
-            "en": "The train {name} has been removed.",
-            "da": "Toget er blevet aflyst."
-        },
-        "invalid_train_length": {
-            "fr": "La longueur du train doit être supérieure à 0.",
-            "en": "The train length must be greater than 0.",
-            "da": "Togets længde skal være større end 0."
-        },
-        "train_not_placed": {
-            "fr": "Le train {name} n'a pas pu être placé dans le dépôt {depot}.",
-            "en": "The train {name} could not be placed in depot {depot}.",
-            "da": "Toget {name} kunne ikke placeres i depotet {depot}."
-        },
-        "requirements": {
-            "fr": "Besoins",
-            "en": "Requirements",
-            "da": "Krav"
-        },
-        "test_drivers": {
-            "fr": "Conducteurs de test",
-            "en": "Test drivers",
-            "da": "Testførere"
-        },
-        "details": {
-            "fr": "Détails",
-            "en": "Details",
-            "da": "Detaljer"
-        },
-        "train_type": {
-            "fr": "Type de train",
-            "en": "Train type",
-            "da": "Togtype"
-        },
-        "testing": {
-            "fr": "Test",
-            "en": "Testing",
-            "da": "Test"
-        },
-        "storage": {
-            "fr": "Stockage",
-            "en": "Storage",
-            "da": "Opbevaring"
-        },
-        "pit": {
-            "fr": "Fosse",
-            "en": "Pit",
-            "da": "Grav"
-        },
-        "from": {
-            "fr": "De",
-            "en": "From",
-            "da": "Fra"
-        },
-        "to": {
-            "fr": "À",
-            "en": "To",
-            "da": "Til"
-        },
-        "requirements_by_day": {
-            "fr": "Besoins par jour",
-            "en": "Requirements by day",
-            "da": "Krav pr. dag"
-        },
-        "resource_type": {
-            "fr": "Type de ressource",
-            "en": "Resource type",
-            "da": "Ressourcetype"
-        },
-        "quantity": {
-            "fr": "Quantité",
-            "en": "Quantity",
-            "da": "Mængde"
-        },
-        "no_requirements": {
-            "fr": "Aucun besoin pour les trains actuels.",
-            "en": "No requirements for the current trains.",
-            "da": "Ingen krav til de nuværende tog."
-        },
-        "train_schedule": {
-    "fr": "Horaires des trains",
-    "en": "Train schedule",
-    "da": "Togplan"
-},
-"no_trains": {
-    "fr": "Aucun train à afficher.",
-    "en": "No trains to display.",
-    "da": "Ingen tog at vise."
-},
-"train_length_by_track": {
-    "fr": "Longueur des trains par voie",
-    "en": "Train length by track",
-    "da": "Toglængde pr. spor"
-},
-"wagons": {
-    "fr": "Nombre de wagons",
-    "en": "Number of wagons",
-    "da": "Antal vogne"
-},
-"locomotives": {
-    "fr": "Nombre de locomotives",
-    "en": "Number of locomotives",
-    "da": "Antal lokomotiver"
-},
-"wagon": {
-    "fr": "Wagon",
-    "en": "Wagon",
-    "da": "Vogn"
-},
-"locomotive": {
-    "fr": "Locomotive",
-    "en": "Locomotive",
-    "da": "Lokomotiv"
-},
-"locomotive_side": {
-    "fr": "Côté de la locomotive",
-    "en": "Locomotive side",
-    "da": "Lokomotivens side"
-},
-"left": {
-    "fr": "Gauche",
-    "en": "Left",
-    "da": "Venstre"
-},
-"right": {
-    "fr": "Droite",
-    "en": "Right",
-    "da": "Højre"
-}, 
-"end_date": {
-    "fr": "Date de fin",
-    "en": "End date",
-    "da": "Slutdato"
-},
-"end_time": {
-    "fr": "Heure de fin",
-    "en": "End time",
-    "da": "Sluttid"
-},
-"invalid_time_range": {
-    "fr": "La plage horaire est invalide. L'heure de début doit être antérieure à l'heure de fin.",
-    "en": "Invalid time range. Start time must be earlier than end time.",
-    "da": "Ugyldigt tidsinterval. Starttid skal være tidligere end sluttid."
-},
-
-    "graph_title1": {
-        "fr": "Occupation des voies",
-        "en": "Track Occupancy",
-        "da": "Sporbesættelse"
-    },
-    "add_coach": {
-        "fr": "Ajouter un wagon",
-        "en": "Add a wagon",
-        "da": "Tilføj en vogn eller"
-    },
-    "add_wagon": {
-        "fr": "Ajouter un wagon",
-        "en": "Add a wagon",
-        "da": "Tilføj en vogn"
-    },
-    "add_locomotive": {
-        "fr": "Ajouter une locomotive",
-        "en": "Add a locomotive",
-        "da": "Tilføj et lokomotiv"
-    },
-    "delete_element": {
-        "fr": "Supprimer un élément",
-        "en": "Delete an element",
-        "da": "Slet et element"
-    },
-    "select_track": {
-        "fr": "Sélectionnez une voie",
-        "en": "Select a track",
-        "da": "Vælg et spor"
-    },
-    "element_id": {
-        "fr": "ID de l'élément",
-        "en": "Element ID",
-        "da": "Element-ID"
-    },
-    "move_wagon": {
-        "fr": "Déplacer un wagon",
-        "en": "Move a wagon",
-        "da": "Flyt en vogn"
-    },
-    "select_source_track": {
-        "fr": "Sélectionnez la voie source",
-        "en": "Select source track",
-        "da": "Vælg kildespor"
-    },
-    "select_target_track": {
-        "fr": "Sélectionnez la voie cible",
-        "en": "Select target track",
-        "da": "Vælg målespor"
-    },
-    "wagon_id": {
-        "fr": "ID du wagon",
-        "en": "Wagon ID",
-        "da": "Vogn-ID"
-    },
-    "move": {
-        "fr": "Déplacer",
-        "en": "Move",
-        "da": "Flyt"
-    },
-    "track_full": {
-        "fr": "La voie est pleine, impossible d'ajouter un wagon.",
-        "en": "The track is full, cannot add a wagon.",
-        "da": "Sporret er fuldt, kan ikke tilføje en vogn."
-    },
-    "success_add": {
-        "fr": "Wagon ajouté avec succès.",
-        "en": "Wagon added successfully.",
-        "da": "Vogn tilføjet med succes."
-    },
-    "Gestion des voies": {
-        "fr": "Gestion des voies",
-        "en": "Tracks Management",
-        "da": "Banestyring"
-    },
-    "success_delete": {
-        "fr": "Élément supprimé avec succès.",
-        "en": "Element deleted successfully.",
-        "da": "Element slettet med succes."
-    },
-    "success_move": {
-        "fr": "Wagon déplacé avec succès.",
-        "en": "Wagon moved successfully.",
-        "da": "Vogn flyttet med succes."
-    },
-    "error_move": {
-        "fr": "Impossible de déplacer le wagon.",
-        "en": "Unable to move the wagon.",
-        "da": "Kan ikke flytte vognen."
-    },
-
-    "reset_game": {"fr": "Réinitialiser le jeu", "en": "Reset game", "da": "Nulstil spil"},
-    "Langue": {
-    "fr": "Langue",
-    "en": "Language",
-    "da": "Sprog"
-},
-"Statistiques": {
-    "fr": "Statistiques",
-    "en": "Statistics",
-    "da": "Statistik"
-},
-"Depot de Glostrup": {
-    "fr": "Dépôt de Glostrup",
-    "en": "Glostrup Depot",
-    "da": "Glostrup Depot"
-},
-"Depot de Naestved": {
-    "fr": "Dépôt de Naestved",
-    "en": "Naestved Depot",
-    "da": "Naestved Depot"
-},
-"Depot Naestved": {
-    "fr": "Dépôt de Naestved",
-    "en": "Naestved Depot",
-    "da": "Naestved Depot"
-},
-"simulation_reset": {
-    "fr": "Simulation réinitialisée.",
-    "en": "Simulation reset.",
-    "da": "Simulering nulstillet."
-},
-"Nom": {
-    "fr": "Nom",
-    "en": "Name",
-    "da": "Navn"
-},
-"Dépôt": {
-    "fr": "Dépôt",
-    "en": "Depot",
-    "da": "Depot"
-},
-"train_schedule_updated": {
-    "fr": "Les horaires du train {name} ont été mis à jour.",
-    "en": "The schedule for train {name} has been updated.",
-    "da": "Togets tidsplan for {name} er blevet opdateret."
-},
-"track_full_warning": {
-    "fr": "La voie est pleine, impossible d'ajouter un wagon.",
-    "en": "The track is full, cannot add a wagon.",
-    "da": "Sporret er fuldt, kan ikke tilføje en vogn."
-},
-    "Train Nom": {"fr": "Nom du train", "en": "Train name", "da": "Tog navn"},
-    "Nombre de wagons": {"fr": "Nombre de wagons", "en": "Number of wagons", "da": "Antal vogne"},
-    "Nombre de locomotives": {"fr": "Nombre de locomotives", "en": "Number of locomotives", "da": "Antal lokomotiver"},
-    "Heure d'arrivée": {"fr": "Heure d'arrivée", "en": "Arrival time", "da": "Ankomsttid"},
-    "Heure de départ": {"fr": "Heure de départ", "en": "Departure time", "da": "Afgangstid"},
-    "Type de train": {"fr": "Type de train", "en": "Train type", "da": "Togtype"},
-    "Électrique": {"fr": "Électrique", "en": "Electric", "da": "Elektrisk"},
-    "Côté sans locomotive": {"fr": "Côté sans locomotive", "en": "Locomotive opposite side", "da": "Lokomotivens side"},
-
-    # --- Interface d'import ---
-    "Importer un fichier CSV ou Excel": {
-        "fr": "Importer un fichier CSV ou Excel",
-        "en": "Import a CSV or Excel file",
-        "da": "Importer en CSV- eller Excel-fil"
-    },
-    "Ajouter ces trains à la simulation": {
-        "fr": "Ajouter ces trains à la simulation",
-        "en": "Add these trains to the simulation",
-        "da": "Tilføj disse tog til simuleringen"
-    },
-    "Import terminé.": {
-        "fr": "Import terminé.",
-        "en": "Import finished.",
-        "da": "Import færdig."
-    },
-    "Exemple de tableau à importer (Excel ou CSV)": {
-        "fr": "Exemple de tableau à importer (Excel ou CSV)",
-        "en": "Example of table to import (Excel or CSV)",
-        "da": "Eksempel på tabel til import (Excel eller CSV)"
-    },
-    "Colonnes acceptées (vous pouvez utiliser n'importe quelle langue) :": {
-        "fr": "Colonnes acceptées (vous pouvez utiliser n'importe quelle langue) :",
-        "en": "Accepted columns (you can use any language):",
-        "da": "Accepterede kolonner (du kan bruge et hvilket som helst sprog):"
-    },
-    # --- Messages d'erreur ou succès ---
-    "Erreur sur la ligne": {
-        "fr": "Erreur sur la ligne",
-        "en": "Error on row",
-        "da": "Fejl på række"
-    },
-    "import_trains": {
-    "fr": "Importer des trains",
-    "en": "Import trains",
-    "da": "Importer tog"
-    },
-    "import_file": {
-        "fr": "Importer un fichier CSV ou Excel",
-        "en": "Import a CSV or Excel file",
-        "da": "Importer en CSV- eller Excel-fil"
-    },
-    "add_imported_trains": {
-        "fr": "Ajouter ces trains à la simulation",
-        "en": "Add these trains to the simulation",
-        "da": "Tilføj disse tog til simuleringen"
-    },
-    "import_success": {
-        "fr": "Import terminé.",
-        "en": "Import finished.",
-        "da": "Import færdig."
-    },
-    "import_error_row": {
-        "fr": "Erreur sur la ligne",
-        "en": "Error on row",
-        "da": "Fejl på række"
-    },
-    "import_example_title": {
-        "fr": "Exemple de tableau à importer (Excel ou CSV)",
-        "en": "Example of table to import (Excel or CSV)",
-        "da": "Eksempel på tabel til import (Excel eller CSV)"
-    },
-    "import_example_help": {
-        "fr": "Voici un exemple de tableau que vous pouvez importer. Les noms de colonnes doivent correspondre à ceux affichés.",
-        "en": "Here is an example of a table you can import. The column names must match those shown.",
-        "da": "Her er et eksempel på en tabel, du kan importere. Kolonnenavnene skal svare til dem, der vises."
-    },
-    "see_example_table": {
-        "fr": "Voir l'exemple de tableau ci-dessous.",
-        "en": "See the example table below.",
-        "da": "Se eksempeltabellen nedenfor."
-    },
-    "add_train_manually": {
-        "fr": "Ajouter un train manuellement",
-        "en": "Add a train manually",
-        "da": "Tilføj et tog manuelt"
-    },
-    "file_preview": {
-        "fr": "Aperçu du fichier importé",
-        "en": "Preview of the imported file",
-        "da": "Forhåndsvisning af den importerede fil"
-    },
-    "import_columns_info": {
-        "fr": "Vous pouvez utiliser les noms de colonnes en français, anglais ou danois.",
-        "en": "You can use column names in French, English or Danish.",
-        "da": "Du kan bruge kolonnenavne på fransk, engelsk eller dansk."
-    }
+        "security_settings": {"fr": "Paramètres de sécurité","en": "Security Settings","da": "Sikkerhedsindstillinger"},
+        "transfer_train": {"fr": "Voulez-vous transférer le train {name} au dépôt {depot} ?","en": "Do you want to transfer train {name} to depot {depot}?","da": "Vil du overføre toget {name} til depotet {depot}?"},
+        "train_transferred": {"fr": "Le train {name} a été transféré au dépôt {depot}.","en": "Train {name} has been transferred to depot {depot}.","da": "Toget {name} er blevet overført til depotet {depot}."},
+        "transfer_failed": {"fr": "Impossible de transférer le train {name} au dépôt {depot}.","en": "Unable to transfer train {name} to depot {depot}.","da": "Kan ikke overføre toget {name} til depotet {depot}."},
+        "train_removed": {"fr": "Le train {name} a été supprimé.","en": "The train {name} has been removed.","da": "Toget er blevet aflyst."},
+        "invalid_train_length": {"fr": "La longueur du train doit être supérieure à 0.","en": "The train length must be greater than 0.","da": "Togets længde skal være større end 0."},
+        "train_not_placed": {"fr": "Le train {name} n'a pas pu être placé dans le dépôt {depot}.","en": "The train {name} could not be placed in depot {depot}.","da": "Toget {name} kunne ikke placeres i depotet {depot}."},
+        "requirements": {"fr": "Besoins","en": "Requirements","da": "Krav"},
+        "test_drivers": {"fr": "Conducteurs de test","en": "Test drivers","da": "Testførere"},
+        "details": {"fr": "Détails","en": "Details","da": "Detaljer"},
+        "train_type": {"fr": "Type de train","en": "Train type","da": "Togtype"},
+        "testing": {"fr": "Test","en": "Testing","da": "Test"},
+        "storage": {"fr": "Stockage","en": "Storage","da": "Opbevaring"},
+        "generate_pdf": {"fr": "Générer le PDF", "en": "Generate PDF", "da": "Generer PDF"},
+        "generating_pdf": {"fr": "Génération du PDF...", "en": "Generating PDF...", "da": "Genererer PDF..."},
+        "pdf_ready": {"fr": "PDF prêt ! Cliquez sur le bouton ci-dessous pour télécharger.", "en": "PDF ready! Click the button below to download.", "da": "PDF klar! Klik på knappen nedenfor for at downloade."},
+        "pit": {"fr": "Fosse","en": "Pit","da": "Grav"},
+        "from": {"fr": "De","en": "From","da": "Fra"},
+        "to": {"fr": "À","en": "To","da": "Til"},
+        "requirements_by_day": {"fr": "Besoins par jour","en": "Requirements by day","da": "Krav pr. dag"},
+        "resource_type": {"fr": "Type de ressource","en": "Resource type","da": "Ressourcetype"},
+        "quantity": {"fr": "Quantité","en": "Quantity","da": "Mængde"},
+        "no_requirements": {"fr": "Aucun besoin pour les trains actuels.","en": "No requirements for the current trains.","da": "Ingen krav til de nuværende tog."},
+        "train_schedule": {"fr": "Horaires des trains","en": "Train schedule","da": "Togplan"},
+        "no_trains": {"fr": "Aucun train à afficher.","en": "No trains to display.","da": "Ingen tog at vise."},
+        "train_length_by_track": {"fr": "Longueur des trains par voie","en": "Train length by track","da": "Toglængde pr. spor"},
+        "wagons": {"fr": "Nombre de wagons","en": "Number of wagons","da": "Antal vogne"},
+        "locomotives": {"fr": "Nombre de locomotives","en": "Number of locomotives","da": "Antal lokomotiver"},
+        "wagon": {"fr": "Wagon","en": "Coach","da": "Vogn"},
+        "locomotive": {"fr": "Locomotive","en": "Locomotive","da": "Lokomotiv"},
+        "wagon_type": {"fr": "Type de wagon", "en": "Wagon type", "da": "Vogntype"},
+        "add_predefined_train": {"fr": "Ajouter un train entier prédéfini", "en": "Add a predefined full train", "da": "Tilføj et foruddefineret helt tog"},
+        "track_for_predefined_train": {"fr": "Voie pour le train prédéfini", "en": "Track for the predefined train", "da": "Spor for det foruddefinerede tog"},
+        "element_to_delete_left": {"fr": "Élément à supprimer (extrémité gauche uniquement)", "en": "Element to delete (left end only)", "da": "Element der skal slettes (kun venstre ende)"},
+        "element_to_move_end": {"fr": "Élément à déplacer (extrémité uniquement)", "en": "Element to move (end only)", "da": "Element der skal flyttes (kun i enden)"},
+        "no_element_left_delete": {"fr": "Aucun élément en extrémité gauche à supprimer.", "en": "No element at the left end to delete.", "da": "Intet element yderst til venstre at slette."},
+        "not_leftmost_element": {"fr": "L'élément sélectionné n'est pas à l'extrémité gauche.", "en": "The selected element is not at the left end.", "da": "Det valgte element er ikke yderst til venstre."},
+        "no_element_end_move": {"fr": "Aucun élément en extrémité à déplacer.", "en": "No element at the end to move.", "da": "Intet element i enden at flytte."},
+        "only_move_end": {"fr": "Vous ne pouvez déplacer qu'un élément à une extrémité de la voie.", "en": "You can only move an element at a track end.", "da": "Du kan kun flytte et element i enden af sporet."},
+        "predefined_train_added": {"fr": "Train prédéfini ajouté avec succès.", "en": "Predefined train successfully added.", "da": "Foruddefineret tog tilføjet med succes."},
+        "wagon_rule_error": {"fr": "Règle non respectée : il faut un wagon 3 ou 3a adjacent à un 4, et un enchaînement 2-3 ou 3-2 après un 4.", "en": "Rule not respected: a type 3 or 3a coach must be adjacent to a 4, and a 2-3 or 3-2 sequence after a 4.", "da": "Regel ikke overholdt: en vogn af type 3 eller 3a skal være ved siden af en 4, og der skal være en 2-3 eller 3-2 sekvens efter en 4."},
+        "locomotive_side": {"fr": "Côté de la locomotive","en": "Locomotive side","da": "Lokomotivens side"},
+        "left": {"fr": "Gauche","en": "Left","da": "Venstre"},
+        "right": {"fr": "Droite","en": "Right","da": "Højre"}, 
+        "end_date": {"fr": "Date de fin","en": "End date","da": "Slutdato"},
+        "end_time": {"fr": "Heure de fin","en": "End time","da": "Sluttid"},
+        "invalid_time_range": {"fr": "La plage horaire est invalide. L'heure de début doit être antérieure à l'heure de fin.","en": "Invalid time range. Start time must be earlier than end time.","da": "Ugyldigt tidsinterval. Starttid skal være tidligere end sluttid."},
+        "graph_title1": {"fr": "Occupation des voies","en": "Track Occupancy","da": "Sporbesættelse"},
+        "add_coach": {"fr": "Ajouter un wagon","en": "Add a coach","da": "Tilføj en vogn eller"},
+        "add_wagon": {"fr": "Ajouter un wagon","en": "Add a coach","da": "Tilføj en vogn"},
+        "add_locomotive": {"fr": "Ajouter une locomotive","en": "Add a locomotive","da": "Tilføj et lokomotiv"},
+        "delete_element": {"fr": "Supprimer un élément","en": "Delete an element","da": "Slet et element"},
+        "select_track": {"fr": "Sélectionnez une voie","en": "Select a track","da": "Vælg et spor"},
+        "element_id": {"fr": "ID de l'élément","en": "Element ID","da": "Element-ID"},
+        "move_wagon": {"fr": "Déplacer un wagon","en": "Move a coach","da": "Flyt en vogn"},
+        "select_source_track": {"fr": "Sélectionnez la voie source","en": "Select source track","da": "Vælg kildespor"},
+        "select_target_track": {"fr": "Sélectionnez la voie cible","en": "Select target track","da": "Vælg målespor"},
+        "wagon_id": {"fr": "ID du wagon","en": "Coach ID","da": "Vogn-ID"},
+        "move": {"fr": "Déplacer","en": "Move","da": "Flyt"},
+        "track_full": {"fr": "La voie est pleine, impossible d'ajouter un wagon.","en": "The track is full, cannot add a coach.","da": "Sporret er fuldt, kan ikke tilføje en vogn."},
+        "success_add": {"fr": "Wagon ajouté avec succès.","en": "coach added successfully.","da": "Vogn tilføjet med succes."},
+        "Gestion des voies": {"fr": "Gestion des voies","en": "Tracks Management","da": "Banestyring"},
+        "success_delete": {"fr": "Élément supprimé avec succès.","en": "Element deleted successfully.","da": "Element slettet med succes."},
+        "success_move": {"fr": "Wagon déplacé avec succès.","en": "Coach moved successfully.","da": "Vogn flyttet med succes."},
+        "error_move": {"fr": "Impossible de déplacer le wagon.","en": "Unable to move the coach.","da": "Kan ikke flytte vognen."},
+        "reset_game": {"fr": "Réinitialiser le jeu", "en": "Reset game", "da": "Nulstil spil"},
+        "Langue": {"fr": "Langue","en": "Language","da": "Sprog"},
+        "Statistiques": {"fr": "Statistiques","en": "Statistics","da": "Statistik"},
+        "Depot de Glostrup": {"fr": "Dépôt de Glostrup","en": "Glostrup Depot","da": "Glostrup Depot"},
+        "Depot de Naestved": {"fr": "Dépôt de Naestved","en": "Naestved Depot","da": "Naestved Depot"},
+        "Depot Naestved": {"fr": "Dépôt de Naestved","en": "Naestved Depot","da": "Naestved Depot"},
+        "simulation_reset": {"fr": "Simulation réinitialisée.","en": "Simulation reset.","da": "Simulering nulstillet."},
+        "Nom": {"fr": "Nom","en": "Name","da": "Navn"},
+        "Dépôt": {"fr": "Dépôt","en": "Depot","da": "Depot"},
+        "train_schedule_updated": {"fr": "Les horaires du train {name} ont été mis à jour.","en": "The schedule for train {name} has been updated.","da": "Togets tidsplan for {name} er blevet opdateret."},
+        "track_full_warning": {"fr": "La voie est pleine, impossible d'ajouter un wagon.","en": "The track is full, cannot add a wagon.","da": "Sporret er fuldt, kan ikke tilføje en vogn."},
+        "Train Nom": {"fr": "Nom du train", "en": "Train name", "da": "Tog navn"},
+        "Nombre de wagons": {"fr": "Nombre de wagons", "en": "Number of coaches", "da": "Antal vogne"},
+        "Nombre de locomotives": {"fr": "Nombre de locomotives", "en": "Number of locomotives", "da": "Antal lokomotiver"},
+        "Heure d'arrivée": {"fr": "Heure d'arrivée", "en": "Arrival time", "da": "Ankomsttid"},
+        "Heure de départ": {"fr": "Heure de départ", "en": "Departure time", "da": "Afgangstid"},
+        "Type de train": {"fr": "Type de train", "en": "Train type", "da": "Togtype"},
+        "Électrique": {"fr": "Électrique", "en": "Electric", "da": "Elektrisk"},
+        "Côté sans locomotive": {"fr": "Côté sans locomotive", "en": "Locomotive opposite side", "da": "Lokomotivens side"},
+        # --- Interface d'import ---
+        "Importer un fichier CSV ou Excel": {"fr": "Importer un fichier CSV ou Excel","en": "Import a CSV or Excel file","da": "Importer en CSV- eller Excel-fil"},
+        "Ajouter ces trains à la simulation": {"fr": "Ajouter ces trains à la simulation","en": "Add these trains to the simulation","da": "Tilføj disse tog til simuleringen"},
+        "Import terminé.": {"fr": "Import terminé.","en": "Import finished.","da": "Import færdig."},
+        "Exemple de tableau à importer (Excel ou CSV)": {"fr": "Exemple de tableau à importer (Excel ou CSV)","en": "Example of table to import (Excel or CSV)","da": "Eksempel på tabel til import (Excel eller CSV)"},
+        "Colonnes acceptées (vous pouvez utiliser n'importe quelle langue) :": {"fr": "Colonnes acceptées (vous pouvez utiliser n'importe quelle langue) :","en": "Accepted columns (you can use any language):","da": "Accepterede kolonner (du kan bruge et hvilket som helst sprog):"},
+        # --- Messages d'erreur ou succès ---
+        "Erreur sur la ligne": {"fr": "Erreur sur la ligne","en": "Error on row","da": "Fejl på række"},
+        "import_trains": {"fr": "Importer des trains","en": "Import trains","da": "Importer tog"},
+        "import_file": {"fr": "Importer un fichier CSV ou Excel","en": "Import a CSV or Excel file","da": "Importer en CSV- eller Excel-fil"},
+        "add_imported_trains": {"fr": "Ajouter ces trains à la simulation","en": "Add these trains to the simulation","da": "Tilføj disse tog til simuleringen"},
+        "import_success": {"fr": "Import terminé.","en": "Import finished.","da": "Import færdig."},
+        "import_error_row": {"fr": "Erreur sur la ligne","en": "Error on row","da": "Fejl på række"},
+        "import_example_title": {"fr": "Exemple de tableau à importer (Excel ou CSV)","en": "Example of table to import (Excel or CSV)","da": "Eksempel på tabel til import (Excel eller CSV)"},
+        "import_example_help": {"fr": "Voici un exemple de tableau que vous pouvez importer. Les noms de colonnes doivent correspondre à ceux affichés.","en": "Here is an example of a table you can import. The column names must match those shown.","da": "Her er et eksempel på en tabel, du kan importere. Kolonnenavnene skal svare til dem, der vises."},
+        "see_example_table": {"fr": "Voir l'exemple de tableau ci-dessous.","en": "See the example table below.","da": "Se eksempeltabellen nedenfor."},
+        "add_train_manually": {"fr": "Ajouter un train manuellement","en": "Add a train manually","da": "Tilføj et tog manuelt"},
+        "legend": {"fr": "Légende", "en": "Legend", "da": "Forklaring"},
+        "file_preview": {"fr": "Aperçu du fichier importé","en": "Preview of the imported file","da": "Forhåndsvisning af den importerede fil"},
+        "import_columns_info": {"fr": "Vous pouvez utiliser les noms de colonnes en français, anglais ou danois.","en": "You can use column names in French, English or Danish.","da": "Du kan bruge kolonnenavne på fransk, engelsk eller dansk."},
+        "delete_left_only_info": {"fr": "Seuls les wagons situés à l'extrémité gauche d'une voie peuvent être supprimés.","en": "Only wagons at the left end of a track can be deleted.","da": "Kun vogne yderst til venstre på et spor kan slettes."},
 }
 def t(key, lang, **kwargs):
     translations = get_translation(lang)

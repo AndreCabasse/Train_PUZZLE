@@ -11,7 +11,23 @@ import plotly.express as px
 import pandas as pd
 
 def creer_graphique_occupation_depot(simulation, depot, base_time, t, lang):
+    """
+    FR : Crée un graphique d'occupation des voies pour un dépôt donné.
+    EN : Create a track occupation chart for a given depot.
+
+    Args:
+        simulation: FR : Instance de Simulation. / EN : Simulation instance.
+        depot: FR : Nom du dépôt ("Glostrup" ou "Naestved"). / EN : Depot name.
+        base_time: FR : Heure de référence pour l'axe X. / EN : Reference time for X axis.
+        t: FR : Fonction de traduction. / EN : Translation function.
+        lang: FR : Langue. / EN : Language.
+
+    Returns:
+        FR : Figure Plotly. / EN : Plotly Figure.
+    """
     fig = go.Figure()
+    # FR : Sélectionne les occupations et numéros de voies selon le dépôt
+    # EN : Select occupation and track numbers according to depot
     if depot == "Glostrup":
         occupation = simulation.occupation_a
         numeros_voies = simulation.numeros_voies_a
@@ -19,7 +35,8 @@ def creer_graphique_occupation_depot(simulation, depot, base_time, t, lang):
         occupation = simulation.occupation_b
         numeros_voies = simulation.numeros_voies_b
 
-    # Couleurs pour les types de trains
+    # FR : Couleurs et motifs selon le type de train
+    # EN : Colors and patterns by train type
     couleurs = {
         "testing": "red",
         "storage": "blue",
@@ -31,13 +48,17 @@ def creer_graphique_occupation_depot(simulation, depot, base_time, t, lang):
         "pit": "\\"
     }
     for voie_idx, debut, fin, train in occupation:
+        # FR : Calcule la position en heures sur l'axe X
+        # EN : Compute position in hours on X axis
         debut_heure = (debut - base_time).total_seconds() / 3600
         fin_heure = (fin - base_time).total_seconds() / 3600
         voie_num = numeros_voies[voie_idx]
         nom_train = f"{train.nom} ⚡" if train.electrique else f"{train.nom}"
-        couleur = couleurs.get(train.type, "gray")  # Couleur par défaut si le type n'est pas défini
-        pattern_shape = patterns.get(train.type, "") if train.electrique else None  # Appliquer un motif uniquement pour les trains électriques
+        couleur = couleurs.get(train.type, "gray")  # FR : Couleur par défaut si type inconnu / EN : Default color if type unknown
+        pattern_shape = patterns.get(train.type, "") if train.electrique else None  # FR : Motif si train électrique / EN : Pattern if electric train
 
+        # FR : Ajoute une barre horizontale pour chaque occupation de voie
+        # EN : Add a horizontal bar for each track occupation
         fig.add_trace(go.Bar(
             x=[fin_heure - debut_heure],
             y=[f"{t('Track', lang)} {voie_num}"],
@@ -45,13 +66,14 @@ def creer_graphique_occupation_depot(simulation, depot, base_time, t, lang):
             orientation='h',
             marker=dict(
                 color=couleur,
-                pattern=dict(shape=pattern_shape)  # Ajouter le motif pour les trains électriques
+                pattern=dict(shape=pattern_shape)  # FR : Motif pour les trains électriques / EN : Pattern for electric trains
             ),
             name=f"{nom_train} ({t(train.type, lang)})",
             hovertemplate=f"Train {nom_train}<br>Type: {t(train.type, lang)}<br>Début: {debut}<br>Fin: {fin}<extra></extra>"
         ))
 
-    # Configuration de l'axe X
+    # FR : Configuration de l'axe X (heures, labels, etc.)
+    # EN : X axis configuration (hours, labels, etc.)
     if occupation:
         max_hours = max((fin - base_time).total_seconds() / 3600 for _, _, fin, _ in occupation)
     else:
@@ -79,24 +101,24 @@ def creer_graphique_occupation_depot(simulation, depot, base_time, t, lang):
     )
     return fig
 
-import plotly.express as px
-import pandas as pd
-
 def creer_graphique_requirements_par_jour(requirements_par_jour, t, lang):
     """
-    Crée un graphique en barres groupées des besoins en ressources par jour.
+    FR : Crée un graphique en barres groupées des besoins en ressources par jour.
+    EN : Create a grouped bar chart of resource requirements per day.
 
     Args:
-        requirements_par_jour: Dictionnaire des besoins par jour.
-        t: Fonction de traduction.
+        requirements_par_jour: FR : Dictionnaire des besoins par jour. / EN : Requirements per day dict.
+        t: FR : Fonction de traduction. / EN : Translation function.
+        lang: FR : Langue. / EN : Language.
 
     Returns:
-        Graphique Plotly.
+        FR : Figure Plotly. / EN : Plotly Figure.
     """
     if not requirements_par_jour:
         return px.bar(title=t("no_requirements", lang))
 
-    # Préparer les données pour le graphique
+    # FR : Prépare les données pour le graphique
+    # EN : Prepare data for the chart
     data = []
     for jour, besoins in sorted(requirements_par_jour.items()):
         data.append({"Date": jour, "Ressource": t("test_drivers", lang), "Quantité": besoins["test_drivers"]})
@@ -109,7 +131,8 @@ def creer_graphique_requirements_par_jour(requirements_par_jour, t, lang):
     if df.empty:
         return px.bar(title=t("no_requirements", lang))
 
-    # Créer le graphique en barres groupées
+    # FR : Crée le graphique en barres groupées
+    # EN : Create grouped bar chart
     fig = px.bar(
         df,
         x="Date",
@@ -117,18 +140,19 @@ def creer_graphique_requirements_par_jour(requirements_par_jour, t, lang):
         color="Ressource",
         title=t("requirements_by_day", lang),
         labels={"Quantité": t("quantity", lang), "Ressource": t("resource_type", lang)},
-        barmode="group",  # Mode groupé pour afficher les barres côte à côte
+        barmode="group",
     )
 
-    # Améliorer l'affichage
+    # FR : Améliore l'affichage (axes, légende, etc.)
+    # EN : Improve display (axes, legend, etc.)
     fig.update_layout(
         xaxis_title=t("Date", lang),
         yaxis_title=t("quantity", lang),
         legend_title=t("resource_type", lang),
         xaxis=dict(
-            tickformat="%d %b %Y",  # Format lisible pour les dates
+            tickformat="%d %b %Y",
             showgrid=True,
-            tickangle=45,  # Incliner les étiquettes pour une meilleure lisibilité
+            tickangle=45,
         ),
         height=500,
         margin=dict(l=40, r=40, t=40, b=80),
@@ -138,34 +162,38 @@ def creer_graphique_requirements_par_jour(requirements_par_jour, t, lang):
 
 def creer_graphique_trains_par_longueur_detaille(simulation, t, instant, lang):
     """
-    Crée un graphique détaillé pour visualiser les trains avec des rectangles pour chaque wagon et locomotive,
-    en fonction d'une plage temporelle.
+    FR : Crée un graphique détaillé représentant chaque wagon et locomotive d'un train à un instant donné.
+    EN : Create a detailed chart showing each wagon and locomotive of a train at a given instant.
 
     Args:
-        simulation: Instance de la simulation contenant les trains et les occupations.
-        t: Fonction de traduction.
-        instant: Instant spécifique (datetime).
+        simulation: FR : Instance Simulation. / EN : Simulation instance.
+        t: FR : Fonction de traduction. / EN : Translation function.
+        instant: FR : Instant à visualiser (datetime). / EN : Instant to visualize (datetime).
+        lang: FR : Langue. / EN : Language.
 
     Returns:
-        Graphique Plotly.
+        FR : Figure Plotly. / EN : Plotly Figure.
     """
     fig = go.Figure()
 
-    # Parcourir les occupations des dépôts A et B
+    # FR : Parcourt les occupations des deux dépôts
+    # EN : Loop through occupations of both depots
     for depot, occupation, numeros_voies in [
         ("Glostrup", simulation.occupation_a, simulation.numeros_voies_a),
         ("Naestved", simulation.occupation_b, simulation.numeros_voies_b),
     ]:
         for voie_idx, debut, fin, train in occupation:
-            # Filtrer les trains présents à l'instant donné
+            # FR : Filtre les trains présents à l'instant donné
+            # EN : Filter trains present at the given instant
             if debut <= instant <= fin:
                 voie_label = f"{t('Track', lang)} {numeros_voies[voie_idx]} ({depot})"
-                position_actuelle = 0  # Position de départ pour dessiner les rectangles
+                position_actuelle = 0  # FR : Position de départ pour dessiner / EN : Start position for drawing
 
-                # Cas 1 locomotive : placer à gauche ou à droite selon train.locomotive_cote
+                # FR : Cas 1 locomotive, à gauche ou à droite
+                # EN : Case 1 locomotive, left or right
                 if train.locomotives == 1:
                     if getattr(train, "locomotive_cote", None) == "left":
-                        # Locomotive à gauche
+                        # FR : Locomotive à gauche / EN : Locomotive on the left
                         fig.add_trace(go.Bar(
                             x=[19],
                             y=[voie_label],
@@ -177,21 +205,7 @@ def creer_graphique_trains_par_longueur_detaille(simulation, t, instant, lang):
                             hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Locomotive<br>Longueur: 19m<extra></extra>"
                         ))
                         position_actuelle += 19
-                        # Puis wagons
-                        for i in range(train.wagons):
-                            fig.add_trace(go.Bar(
-                                x=[14],
-                                y=[voie_label],
-                                base=position_actuelle,
-                                orientation='h',
-                                marker=dict(color="blue", line=dict(color="black", width=1)),
-                                width=0.3,
-                                name=f"{train.nom} - {t('wagon')} {i + 1}",
-                                hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Wagon {i + 1}<br>Longueur: 14m<extra></extra>"
-                            ))
-                            position_actuelle += 14
-                    else:
-                        # Wagons d'abord
+                        # FR : Puis wagons / EN : Then wagons
                         for i in range(train.wagons):
                             fig.add_trace(go.Bar(
                                 x=[14],
@@ -204,7 +218,20 @@ def creer_graphique_trains_par_longueur_detaille(simulation, t, instant, lang):
                                 hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Wagon {i + 1}<br>Longueur: 14m<extra></extra>"
                             ))
                             position_actuelle += 14
-                        # Locomotive à droite
+                    else:
+                        # FR : Wagons d'abord, puis locomotive à droite / EN : Wagons first, then locomotive on the right
+                        for i in range(train.wagons):
+                            fig.add_trace(go.Bar(
+                                x=[14],
+                                y=[voie_label],
+                                base=position_actuelle,
+                                orientation='h',
+                                marker=dict(color="blue", line=dict(color="black", width=1)),
+                                width=0.3,
+                                name=f"{train.nom} - {t('wagon', lang)} {i + 1}",
+                                hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Wagon {i + 1}<br>Longueur: 14m<extra></extra>"
+                            ))
+                            position_actuelle += 14
                         fig.add_trace(go.Bar(
                             x=[19],
                             y=[voie_label],
@@ -217,9 +244,9 @@ def creer_graphique_trains_par_longueur_detaille(simulation, t, instant, lang):
                         ))
                         position_actuelle += 19
 
-                # Cas 2 locomotives : une à chaque extrémité
+                # FR : Cas 2 locomotives, une à chaque extrémité
+                # EN : Case 2 locomotives, one at each end
                 elif train.locomotives == 2:
-                    # Locomotive gauche
                     fig.add_trace(go.Bar(
                         x=[19],
                         y=[voie_label],
@@ -231,7 +258,6 @@ def creer_graphique_trains_par_longueur_detaille(simulation, t, instant, lang):
                         hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Locomotive<br>Longueur: 19m<extra></extra>"
                     ))
                     position_actuelle += 19
-                    # Wagons
                     for i in range(train.wagons):
                         fig.add_trace(go.Bar(
                             x=[14],
@@ -244,7 +270,6 @@ def creer_graphique_trains_par_longueur_detaille(simulation, t, instant, lang):
                             hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Wagon {i + 1}<br>Longueur: 14m<extra></extra>"
                         ))
                         position_actuelle += 14
-                    # Locomotive droite
                     fig.add_trace(go.Bar(
                         x=[19],
                         y=[voie_label],
@@ -257,7 +282,8 @@ def creer_graphique_trains_par_longueur_detaille(simulation, t, instant, lang):
                     ))
                     position_actuelle += 19
 
-                # Cas 0 locomotive
+                # FR : Cas 0 locomotive, uniquement des wagons
+                # EN : Case 0 locomotive, only wagons
                 elif train.locomotives == 0:
                     for i in range(train.wagons):
                         fig.add_trace(go.Bar(
@@ -272,7 +298,8 @@ def creer_graphique_trains_par_longueur_detaille(simulation, t, instant, lang):
                         ))
                         position_actuelle += 14
 
-    # Configurer l'affichage du graphique
+    # FR : Configuration du graphique (axes, légende, etc.)
+    # EN : Chart configuration (axes, legend, etc.)
     fig.update_layout(
         title=t("train_length_by_track", lang),
         xaxis_title=t("length", lang),
@@ -280,12 +307,25 @@ def creer_graphique_trains_par_longueur_detaille(simulation, t, instant, lang):
         legend_title=t("train_type", lang),
         height=600,
         margin=dict(l=40, r=40, t=40, b=80),
-        barmode='stack',  # Empiler les rectangles pour chaque train
+        barmode='stack',
     )
 
     return fig
 
 def creer_gantt_occupation_depot(simulation, depot, t, lang):
+    """
+    FR : Crée un diagramme de Gantt de l'occupation des voies pour un dépôt.
+    EN : Create a Gantt chart of track occupation for a depot.
+
+    Args:
+        simulation: FR : Instance Simulation. / EN : Simulation instance.
+        depot: FR : Nom du dépôt. / EN : Depot name.
+        t: FR : Fonction de traduction. / EN : Translation function.
+        lang: FR : Langue. / EN : Language.
+
+    Returns:
+        FR : Figure Plotly. / EN : Plotly Figure.
+    """
     if depot == "Glostrup":
         occupation = simulation.occupation_a
         numeros_voies = simulation.numeros_voies_a
@@ -293,6 +333,8 @@ def creer_gantt_occupation_depot(simulation, depot, t, lang):
         occupation = simulation.occupation_b
         numeros_voies = simulation.numeros_voies_b
 
+    # FR : Prépare les données pour le Gantt
+    # EN : Prepare data for Gantt chart
     data = []
     for voie_idx, debut, fin, train in occupation:
         data.append({
@@ -304,12 +346,14 @@ def creer_gantt_occupation_depot(simulation, depot, t, lang):
             "Électrique": "⚡" if getattr(train, "electrique", False) else "",
         })
 
-    # Correction ici : toujours créer un DataFrame avec les bonnes colonnes
+    # FR : Toujours créer un DataFrame avec les bonnes colonnes
+    # EN : Always create a DataFrame with the right columns
     columns = ["Voie", "Début", "Fin", "Train", "Type", "Électrique"]
     df = pd.DataFrame(data, columns=columns)
 
     if df.empty:
-        # Crée un graphique vide mais valide
+        # FR : Crée un graphique vide mais valide
+        # EN : Create an empty but valid chart
         fig = px.timeline(df, x_start="Début", x_end="Fin", y="Voie", title=t(f"Planning {depot}", lang))
         fig.update_layout(
             height=200,
@@ -318,6 +362,8 @@ def creer_gantt_occupation_depot(simulation, depot, t, lang):
         )
         return fig
 
+    # FR : Crée le diagramme de Gantt avec Plotly Express
+    # EN : Create the Gantt chart with Plotly Express
     fig = px.timeline(
         df,
         x_start="Début",
