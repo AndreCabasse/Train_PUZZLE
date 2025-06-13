@@ -55,6 +55,7 @@ from Plots import (
 )
 import pandas as pd
 import io
+import re
 from PIL import Image
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
@@ -83,7 +84,8 @@ def plotly_double_fig_to_pdf(fig1, legend_html1, fig2, legend_html2):
         # Ajoute la légende si fournie
         if legend_html:
             from reportlab.lib.utils import simpleSplit
-            legend_lines = simpleSplit(legend_html, "Helvetica", 12, width-40)
+            legend_text = re.sub('<[^<]+?>', '', legend_html)  # retire les balises HTML
+            legend_lines = simpleSplit(legend_text, "Helvetica", 12, width-40)
             y = y_offset - img_height - 20
             for line in legend_lines:
                 c.drawString(30, y, line)
@@ -104,7 +106,105 @@ def plotly_double_fig_to_pdf(fig1, legend_html1, fig2, legend_html2):
 
 # FR : Configuration de la page Streamlit (largeur étendue)
 # EN : Set Streamlit page layout to wide
-st.set_page_config(layout="wide")
+st.set_page_config(
+    page_title="Simulation d'occupation des voies",
+    layout="wide",
+    page_icon="🚄"
+)
+
+# --- CSS personnalisé pour un look moderne ---
+st.markdown("""
+    <style>
+    /* Bandeau logo : padding haut/bas augmenté, logo centré verticalement */
+    .logo-bandeau {
+        width:100%;
+        background:linear-gradient(90deg,#1976d2 0%,#4fc3f7 100%);
+        padding:48px 0 32px 0; /* padding-top et padding-bottom augmentés */
+        margin-bottom:18px;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        box-shadow:0 2px 8px #0002;
+        min-height:120px;
+    }
+    .logo-bandeau img {
+        max-height:80px;
+        height:auto;
+        object-fit:contain;
+        margin-top:0;
+        margin-bottom:0;
+    }
+
+    /* Contraste pour TOUS les champs de formulaire, même dans les colonnes */
+    .stTextInput input,
+    .stNumberInput input,
+    .stDateInput input,
+    .stTimeInput input,
+    .stTextArea textarea,
+    .stSelectbox div[data-baseweb="select"] > div,
+    .stSelectbox input {
+        background: #f7fafc !important;
+        border: 2px solid #b0bec5 !important;
+        border-radius: 8px !important;
+        color: #222 !important;
+        box-shadow: 0 1px 2px #0001;
+    }
+    /* Contraste pour les labels */
+    label, .stTextInput label, .stNumberInput label, .stDateInput label, .stTimeInput label {
+        color: #1976d2 !important;
+        font-weight: 500;
+    }
+    /* Contraste pour les DataFrames et tables */
+    .stDataFrame, .stTable {
+        background: #f7fafc !important;
+        border-radius: 10px;
+        padding: 12px;
+        box-shadow: 0 2px 8px #0001;
+        border: 1.5px solid #b0bec5;
+    }
+    .stButton>button {
+        background-color: #1976d2;
+        color: white;
+        border-radius: 6px;
+        font-weight: bold;
+        padding: 0.5em 1.5em;
+        border: none;
+        transition: background 0.2s;
+    }
+    .stButton>button:hover {
+        background-color: #125ea2;
+    }
+    .stMetric {
+        background: #e0eafc;
+        border-radius: 8px;
+        padding: 8px 0;
+        margin-bottom: 8px;
+    }
+    .stSidebar .stSlider, .stSidebar .stSelectbox, .stSidebar .stButton {
+        background: #f0f0f5;
+        border-radius: 8px;
+    }
+    .stDivider { margin: 1.5em 0; }
+    h2, .stSubheader { color: #1976d2 !important; }
+    .block-container { padding-top: 1.5rem; }
+    </style>
+""", unsafe_allow_html=True)
+
+# --- Bandeau logo modernisé avec nouvelle classe ---
+import base64
+logo_path = "DSB1.png"
+def get_base64_logo(logo_path):
+    with open(logo_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode()
+logo_base64 = get_base64_logo(logo_path)
+st.markdown(
+    f"""
+    <div class="logo-bandeau">
+        <img src="data:image/png;base64,{logo_base64}" alt="Logo" style="height:80px;">
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 # FR : Initialisation de la simulation et de l'heure de base dans la session Streamlit
 # EN : Initialize simulation and base time in Streamlit session state
@@ -126,9 +226,15 @@ t_dict = get_translation(lang)
 # FR : TITRE PRINCIPAL ET PARAMÈTRES DE SÉCURITÉ
 # EN : MAIN TITLE AND SAFETY PARAMETERS
 # ---------------------------------------------------------------------------
-
-st.title(t("title", lang))
-
+st.markdown(
+    f"""
+    <h1 style="text-align:center; margin-top:0; margin-bottom:0.5em; color:#2C3E50;">
+        {t('title', lang)}
+    </h1>
+    """,
+    unsafe_allow_html=True,
+)
+st.divider()
 # FR : Délai de sécurité entre deux trains sur une même voie (slider dans la sidebar)
 # EN : Safety delay between two trains on the same track (slider in sidebar)
 st.sidebar.subheader(t("security_settings", lang))
@@ -169,12 +275,12 @@ stats = calculer_statistiques_globales(st.session_state.simulation)
 #      tab6: Wagon management mini-game
 
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    t("add_train", lang), 
-    t("train_list", lang), 
-    t("graph_title", lang), 
-    t("Statistiques", lang), 
-    t("requirements", lang), 
-    t("Gestion des voies", lang)
+    "➕ " + t("add_train", lang),
+    "📋 " + t("train_list", lang),
+    "📊 " + t("graph_title", lang),
+    "📈 " + t("Statistiques", lang),
+    "🛠️ " + t("requirements", lang),
+    "🎮 " + t("Gestion des voies", lang)
 ])
 
 # ---------------------------------------------------------------------------
@@ -441,11 +547,41 @@ with tab4:
         {"Depot": t("Depot de Glostrup", lang), "Trains": stats['trains_glostrup']},
         {"Depot": t("Depot de Naestved", lang), "Trains": stats['trains_naestved']}
     ]
-    fig_depot = px.pie(depot_counts, names="Depot", values="Trains", title=t("train_list", lang))
+    fig_depot = px.pie(
+        depot_counts,
+        names="Depot",
+        values="Trains",
+        title=t("train_list", lang),
+        color_discrete_sequence=["#1976d2", "#4fc3f7"]
+    )
+    fig_depot.update_traces(
+        textinfo='percent+label',
+        pull=[0.05, 0],
+        marker=dict(line=dict(color='#fff', width=2))
+    )
+    fig_depot.update_layout(
+        title=dict(
+            font=dict(size=22, family="Segoe UI, Arial"),
+            x=0.5
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=-0.18,
+            xanchor="left",
+            x=0,
+            bgcolor="rgba(255,255,255,0.7)",
+            bordercolor="#b0bec5",
+            borderwidth=1
+        ),
+        plot_bgcolor="#f7fafc",
+        paper_bgcolor="#f0f0f5",
+        font=dict(family="Segoe UI, Arial", size=14, color="#222"),
+        margin=dict(l=40, r=40, t=90, b=90)
+    )
     st.plotly_chart(fig_depot, use_container_width=True)
 
-    # FR : Graphique de répartition par type de train
-    # EN : Bar chart by train type
+    # Bar chart by train type
     type_counts = {}
     for train in st.session_state.simulation.trains:
         type_label = t(train.type, lang)
@@ -455,8 +591,37 @@ with tab4:
             x=list(type_counts.keys()),
             y=list(type_counts.values()),
             labels={"x": t("train_type", lang), "y": t("train_list", lang)},
-            title=t("train_type", lang)
+            title=t("train_type", lang),
+            color=list(type_counts.keys()),
+            color_discrete_sequence=["#1976d2", "#e74c3c", "#27ae60", "#f39c12", "#8e44ad"]
         )
+        fig_type.update_traces(
+            marker_line_color='#222',
+            marker_line_width=2,
+            opacity=0.85
+        )
+        fig_type.update_layout(
+            title=dict(
+                font=dict(size=22, family="Segoe UI, Arial"),
+                x=0.5
+            ),
+            plot_bgcolor="#f7fafc",
+            paper_bgcolor="#f0f0f5",
+            font=dict(family="Segoe UI, Arial", size=14, color="#222"),
+            margin=dict(l=40, r=40, t=90, b=90),
+            xaxis=dict(showgrid=False),
+            yaxis=dict(showgrid=True, gridcolor="#e0eafc"),
+            legend=dict(
+                orientation="h",
+                yanchor="top",
+                y=-0.18,
+                xanchor="left",
+                x=0,
+                bgcolor="rgba(255,255,255,0.7)",
+                bordercolor="#b0bec5",
+                borderwidth=1
+                ),
+            )
         st.plotly_chart(fig_type, use_container_width=True)
     
 # ---------------------------------------------------------------------------
@@ -504,8 +669,33 @@ with tab5:
     if requirements_par_jour:
         st.write(f"### {t('requirements_by_day', lang)}")
         fig = creer_graphique_requirements_par_jour(requirements_par_jour, t, lang)
+        fig_depot.update_layout(
+            title=dict(
+                text=t("train_list", lang),
+                font=dict(size=22, family="Segoe UI, Arial"),
+                x=0.5
+            ),
+            legend=dict(
+                orientation="h",
+                yanchor="top",
+                y=-0.18,
+                xanchor="left",
+                x=0,
+                bgcolor="rgba(255,255,255,0.7)",
+                bordercolor="#b0bec5",
+                borderwidth=1
+            ),
+            plot_bgcolor="#f7fafc",
+            paper_bgcolor="#f0f0f5",
+            font=dict(family="Segoe UI, Arial", size=14, color="#222"),
+            margin=dict(l=40, r=40, t=90, b=80)
+        )
+        fig.update_traces(
+            marker_line_color='#222',
+            marker_line_width=2,
+            opacity=0.9
+        )
         st.plotly_chart(fig, use_container_width=True)
-
         # FR : Tableau exportable par jour
         # EN : Exportable table by day
         export_data = []

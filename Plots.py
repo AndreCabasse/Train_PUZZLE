@@ -38,9 +38,9 @@ def creer_graphique_occupation_depot(simulation, depot, base_time, t, lang):
     # FR : Couleurs et motifs selon le type de train
     # EN : Colors and patterns by train type
     couleurs = {
-        "testing": "red",
-        "storage": "blue",
-        "pit": "green"
+        "testing": "#e74c3c",   # rouge moderne
+        "storage": "#2980b9",   # bleu moderne
+        "pit": "#27ae60"        # vert moderne
     }
     patterns = {
         "testing": "x",
@@ -48,17 +48,13 @@ def creer_graphique_occupation_depot(simulation, depot, base_time, t, lang):
         "pit": "\\"
     }
     for voie_idx, debut, fin, train in occupation:
-        # FR : Calcule la position en heures sur l'axe X
-        # EN : Compute position in hours on X axis
         debut_heure = (debut - base_time).total_seconds() / 3600
         fin_heure = (fin - base_time).total_seconds() / 3600
         voie_num = numeros_voies[voie_idx]
         nom_train = f"{train.nom} ⚡" if train.electrique else f"{train.nom}"
-        couleur = couleurs.get(train.type, "gray")  # FR : Couleur par défaut si type inconnu / EN : Default color if type unknown
-        pattern_shape = patterns.get(train.type, "") if train.electrique else None  # FR : Motif si train électrique / EN : Pattern if electric train
+        couleur = couleurs.get(train.type, "#7f8c8d")
+        pattern_shape = patterns.get(train.type, "") if train.electrique else None
 
-        # FR : Ajoute une barre horizontale pour chaque occupation de voie
-        # EN : Add a horizontal bar for each track occupation
         fig.add_trace(go.Bar(
             x=[fin_heure - debut_heure],
             y=[f"{t('Track', lang)} {voie_num}"],
@@ -66,10 +62,16 @@ def creer_graphique_occupation_depot(simulation, depot, base_time, t, lang):
             orientation='h',
             marker=dict(
                 color=couleur,
-                pattern=dict(shape=pattern_shape)  # FR : Motif pour les trains électriques / EN : Pattern for electric trains
+                pattern=dict(shape=pattern_shape),
+                line=dict(color="#222", width=2),  # Bordure plus visible
             ),
             name=f"{nom_train} ({t(train.type, lang)})",
-            hovertemplate=f"Train {nom_train}<br>Type: {t(train.type, lang)}<br>Début: {debut}<br>Fin: {fin}<extra></extra>"
+            hovertemplate=(
+                f"<b>{nom_train}</b><br>"
+                f"{t('train_type', lang)}: {t(train.type, lang)}<br>"
+                f"{t('arrival_time', lang)}: {debut.strftime('%Y-%m-%d %H:%M')}<br>"
+                f"{t('departure_time', lang)}: {fin.strftime('%Y-%m-%d %H:%M')}<extra></extra>"
+            )
         ))
 
     # FR : Configuration de l'axe X (heures, labels, etc.)
@@ -85,19 +87,37 @@ def creer_graphique_occupation_depot(simulation, depot, base_time, t, lang):
     ticklabels = [(base_time + timedelta(hours=tick)).strftime(tick_format) for tick in ticks]
 
     fig.update_layout(
-        title=t(f"Depot {depot}", lang),
+        title=dict(
+            text=f"<b>{t(f'Depot {depot}', lang)}</b>",
+            font=dict(size=22, family="Segoe UI, Arial"),
+            x=0.5
+        ),
         xaxis=dict(
             title=t("Time", lang),
             tickvals=ticks,
             ticktext=ticklabels,
             tickangle=45,
             showgrid=True,
-            zeroline=False
+            zeroline=False,
+            gridcolor="#e0eafc"
         ),
         yaxis=dict(title=t("Track", lang)),
         barmode='stack',
-        height=400,
-        margin=dict(l=40, r=40, t=40, b=80)
+        height=420,
+        margin=dict(l=40, r=40, t=90, b=90),
+        plot_bgcolor="#f7fafc",
+        paper_bgcolor="#f0f0f5",
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=-0.18,
+            xanchor="left",
+            x=0,
+            bgcolor="rgba(255,255,255,0.7)",
+            bordercolor="#b0bec5",
+            borderwidth=1
+        ),
+        font=dict(family="Segoe UI, Arial", size=14, color="#222"),
     )
     return fig
 
