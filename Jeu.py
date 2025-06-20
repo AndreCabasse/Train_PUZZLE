@@ -9,6 +9,36 @@ import plotly.graph_objects as go
 from Traduction import t, get_translation
 import base64
 
+st.markdown("""
+    <style>
+    html, body, [class*="css"]  {
+        font-size: 13px !important;
+    }
+    .block-container {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    .stButton>button, .stSelectbox, .stTextInput, .stNumberInput, .stRadio, .stCheckbox {
+        font-size: 13px !important;
+        min-height: 28px !important;
+        height: 28px !important;
+    }
+    .stAlert, .stMarkdown, .stSubheader, .stHeader, .stCaption {
+        font-size: 13px !important;
+        margin-bottom: 0.2rem !important;
+        margin-top: 0.2rem !important;
+    }
+    .st-bb, .st-cq, .st-cv, .st-cw, .st-cx, .st-cy, .st-cz, .st-da, .st-db, .st-dc, .st-dd {
+        margin-bottom: 0.1rem !important;
+        margin-top: 0.1rem !important;
+    }
+    /* Hide Streamlit menu and footer */
+    #MainMenu, footer {visibility: hidden;}
+    </style>
+""", unsafe_allow_html=True)
+
 def main(lang):
     # FR : Initialisation des voies et des compteurs d'identifiants dans la session Streamlit
     # EN : Initialize tracks and ID counters in Streamlit session state
@@ -46,7 +76,7 @@ def main(lang):
                         if sens == "left" or sens == "gauche":
                             style = "height:40px;margin-right:1px;"
                         else:
-                            style = "height:52px;margin-right:1px;"
+                            style = "height:52px;margin-right:0px;"
                     elif type_wagon == "4":
                         img_file = f"{chemin_images}/wagon_4_{sens}.png"
                         style = "height:40px;margin-right:1px;"
@@ -197,7 +227,7 @@ def main(lang):
         EN : Completely reset the mini-game state.
         """
         st.session_state.voies_glostrup = {7: [], 8: [], 9: [], 11: []}
-        for key in ["wagon_id", "locomotive_id", "type_wagon", "ajout_voie", "ajout_loco", "supp_voie", "supp_id", "source_voie", "cible_voie"]:
+        for key in ["wagon_id","sens_adding", "locomotive_id", "type_wagon", "ajout_voie", "ajout_loco", "supp_voie", "supp_id", "source_voie", "cible_voie"]:
             if key in st.session_state:
                 del st.session_state[key]
         st.session_state.last_action = None
@@ -206,36 +236,8 @@ def main(lang):
     st.subheader(t("graph_title1", lang))
 
     afficher_voies()
+    st.divider()
 
-    # --- FR : Interface compacte avec colonnes pour chaque action ---
-    # --- EN : Compact interface with columns for each action ---
-
-    # FR : Ligne pour ajouter un wagon
-    # EN : Row to add a wagon
-    st.markdown("### " + t("add_coach", lang))
-    col1, col2, col3, col4 = st.columns([2, 2, 2, 1])
-    with col1:
-        voie_ajout = st.selectbox(t("select_track", lang), options=[7, 8, 9, 11], key="ajout_voie")
-    with col2:
-        type_wagon = st.selectbox(t("wagon_type", lang), options=["1", "2", "3", "4", "2a", "3a", "2+3", "3+2", "2a+3a", "3a+2a"], key="type_wagon")
-    with col3:
-        sens_ajout = st.selectbox("Sens d’ajout", options=["left", "right"], key="sens_ajout")
-    with col4:
-        if st.button(t("add_coach", lang), key="btn_add_wagon"):
-            ajouter_wagon(voie_ajout, type_wagon, sens_ajout)
-            st.session_state.last_action = "add_coach"
-
-    # FR : Ligne pour ajouter une locomotive
-    # EN : Row to add a locomotive
-    st.markdown("### " + t("add_locomotive", lang))
-    col4, col5 = st.columns([3, 1])
-    with col4:
-        voie_loco = st.selectbox(t("select_track", lang), options=[7, 8, 9, 11], key="ajout_loco")
-    with col5:
-        if st.button(t("add_locomotive", lang), key="btn_add_loco"):
-            ajouter_locomotive(voie_loco)
-            st.session_state.last_action = "add_locomotive"
-            
     # FR : Ligne pour ajouter un train entier prédéfini
     # EN : Row to add a predefined full train
 
@@ -295,6 +297,37 @@ def main(lang):
             st.success(t("predefined_train_added", lang))
             st.rerun()
             
+    # --- FR : Interface compacte avec colonnes pour chaque action ---
+    # --- EN : Compact interface with columns for each action ---
+
+    # FR : Ligne pour ajouter un wagon
+    # EN : Row to add a wagon
+    st.markdown("### " + t("add_coach", lang))
+    col1, col2, col3, col4 = st.columns([2, 2, 2, 1])
+    with col1:
+        voie_ajout = st.selectbox(t("select_track", lang), options=[7, 8, 9, 11], key="ajout_voie", help=t("track_adding_coach", lang))
+    with col2:
+        type_wagon = st.selectbox(t("wagon_type", lang), options=["1", "2", "3", "4", "2a", "3a"], key="type_wagon", help=t("wagon_type_to_add", lang))
+    with col3:
+        sens_ajout = st.selectbox(t("sens_adding", lang), options=["left", "right"], key="sens_ajout")
+    with col4:
+        if st.button(t("add_coach", lang), key="btn_add_wagon"):
+            ajouter_wagon(voie_ajout, type_wagon, sens_ajout)
+            st.session_state.last_action = "add_coach"
+    st.divider()
+    
+    # FR : Ligne pour ajouter une locomotive
+    # EN : Row to add a locomotive
+    st.markdown("### " + t("add_locomotive", lang))
+    col4, col5 = st.columns([3, 1])
+    with col4:
+        voie_loco = st.selectbox(t("select_track", lang), options=[7, 8, 9, 11], key="ajout_loco", help=t("track_choice_locomotive", lang))
+    with col5:
+        if st.button(t("add_locomotive", lang), key="btn_add_loco"):
+            ajouter_locomotive(voie_loco)
+            st.session_state.last_action = "add_locomotive"
+    st.divider()        
+            
     st.markdown("### " + t("add_predefined_train", lang))
     col_train, col_btn = st.columns([3, 1])
     with col_train:
@@ -303,7 +336,7 @@ def main(lang):
         if st.button(t("add_predefined_train", lang), key="btn_add_predef_train"):
             ajouter_train_predefini(voie_train)
             st.session_state.last_action = "add_predef_train"
-
+    st.divider()
     # FR : Ligne pour supprimer un élément (wagon à l'extrémité gauche uniquement)
     # EN : Row to remove an element (leftmost wagon only)
     st.markdown("### " + t("delete_element", lang))
@@ -313,7 +346,8 @@ def main(lang):
         voie_supp = st.selectbox(
             t("select_track", lang),
             options=[7, 8, 9, 11],
-            key="supp_voie"
+            key="supp_voie",
+            help=t("track_erasing", lang)
         )
     with col7:
         #elements = st.session_state.voies_glostrup[voie_supp]
@@ -336,6 +370,7 @@ def main(lang):
             )
         else:
             element_id, element_type, extremite = None, None, None
+
     with col8:
         if st.button(t("delete", lang), key="btn_delete"):
             if element_id is not None:
@@ -349,6 +384,7 @@ def main(lang):
             else:
                 st.warning(t("no_element_left_delete", lang))
 
+    st.divider()
     # FR : Ligne pour déplacer un wagon (extrémité uniquement)
     # EN : Row to move a wagon (end only)
     st.markdown("### " + t("move_wagon", lang))
@@ -357,8 +393,9 @@ def main(lang):
         voie_source = st.selectbox(
             t("select_source_track", lang),
             options=[7, 8, 9, 11],
-            key="source_voie"
-        )
+            key="source_voie",
+            help=t("origin_track_change", lang)
+        ) 
     with col10:
         elements_src = st.session_state.voies_glostrup[voie_source]
         elements_extremite_src = []
@@ -385,8 +422,9 @@ def main(lang):
         voie_cible = st.selectbox(
             t("select_target_track", lang),
             options=[7, 8, 9, 11],
-            key="cible_voie"
-        )
+            key="cible_voie",
+            help=t("track_change", lang)
+        ) 
     with col12:
         if st.button(t("move", lang), key="btn_move"):
             if element_id is not None:
@@ -400,7 +438,7 @@ def main(lang):
                     st.error(t("only_move_end", lang))
             else:
                 st.warning(t("no_element_end_move", lang))
-
+    st.divider()
     # FR : Ligne pour réinitialiser le jeu
     # EN : Row to reset the game
     st.markdown("### " + t("reset_game", lang))

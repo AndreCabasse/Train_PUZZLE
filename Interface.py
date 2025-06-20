@@ -11,68 +11,72 @@ from Simulation import Train
 import pandas as pd
 
 def afficher_formulaire_ajout(simulation, lang, t):
-    # FR : Affiche le formulaire d'ajout de train et gère la logique d'ajout.
-    # EN : Display the train addition form and handle the add logic.
     st.subheader(t("add_train", lang))
 
-    # FR : Indicateur pour afficher un message de confirmation après ajout.
-    # EN : Indicator to show a confirmation message after adding.
     if "train_added" not in st.session_state:
         st.session_state.train_added = False
 
-    # FR : Affiche un message de confirmation si un train a été ajouté.
-    # EN : Show a confirmation message if a train was added.
     if st.session_state.train_added:
         st.success(t("train_added", lang, name=st.session_state.last_train_name))
-        st.session_state.train_added = False  # Reset indicator
+        st.session_state.train_added = False
 
-    depot = st.selectbox(t("select_depot", lang), ["Glostrup", "Naestved"])
-    base_time = st.session_state.base_time
-    date_base = st.date_input(t("base_date", lang), st.session_state.base_time.date())
-    heure_base = st.time_input(t("base_time", lang), base_time.time())
-    st.session_state.base_time = datetime.combine(date_base, heure_base)
+    depot = st.selectbox(t("select_depot", lang), list(simulation.depots.keys()), help=t("select_depot_tooltip",lang))
+    st.divider()
 
-    col1, col2, col3 = st.columns(3)
+    # Bloc 1 : Dates et heures sur une ligne
+    col1, col2, col3, col4 = st.columns(4)
     with col1:
-        date_arr = st.date_input(t("arrival_date", lang))
-        heure_arr = st.time_input(t("arrival_time", lang))
+        date_arr = st.date_input(t("arrival_date", lang), help=t("arrival_date_tooltip",lang))
     with col2:
-        date_dep = st.date_input(t("departure_date", lang))
-        heure_dep = st.time_input(t("departure_time", lang))
+        heure_arr = st.time_input(t("arrival_time", lang), help=t("arrival_time_tooltip",lang))
     with col3:
-        nom = st.text_input(t("train_name", lang), "")
-        wagons = st.number_input(t("wagons", lang), min_value=1, step=1)
-        locomotives = st.number_input(t("locomotives", lang), min_value=0, step=1)  # FR : Permettre 0 locomotive / EN : Allow 0 locomotive
-        optimiser = st.checkbox(t("optimize", lang))
-        electrique = st.checkbox(t("electric_train", lang), value=False)
+        date_dep = st.date_input(t("departure_date", lang), help=t("departure_date_tooltip",lang))
+    with col4:
+        heure_dep = st.time_input(t("departure_time", lang), help=t("departure_time_tooltip",lang))
+    st.divider()
 
-    # FR : Affiche dynamiquement le choix du côté de la locomotive si une seule est sélectionnée.
-    # EN : Dynamically show locomotive side choice if only one is selected.
-    locomotive_cote = None
-    if locomotives == 1:
-        locomotive_cote = st.radio(
-            t("locomotive_side", lang),
-            options=["left", "right"],
-            format_func=lambda x: t(x, lang)
+    # Bloc 2 : Nom, wagons, locomotives, type, options sur une ligne
+    col5, col6, col7, col8 = st.columns([2, 1, 1, 2])
+    with col5:
+        nom = st.text_input(t("train_name", lang), "", help=t("train_name_tooltip",lang))
+    with col6:
+        wagons = st.number_input(t("wagons", lang), min_value=1, step=1, help=t("wagons_tooltip",lang))
+    with col7:
+        locomotives = st.number_input(t("locomotives", lang), min_value=0, step=1, help=t("locomotives_tooltip",lang))
+    with col8:
+        type_train = st.selectbox(
+            t("train_type", lang),
+            ["testing", "storage", "pit"],
+            format_func=lambda x: t(x, lang),
+            help=t("train_type_tooltip",lang)
         )
+    st.divider()
 
-    # FR : Champ pour le type de train.
-    # EN : Field for train type.
-    type_train = st.selectbox(
-        t("train_type", lang),
-        ["testing", "storage", "pit"],
-        format_func=lambda x: t(x, lang)
-    )
+    # Bloc 3 : Options (optimiser, électrique, côté loco si 1 loco)
+    col9, col10, col11 = st.columns([1, 1, 2])
+    with col9:
+        optimiser = st.checkbox(t("optimize", lang), help=t("optimize_tooltip",lang))
+    with col10:
+        electrique = st.checkbox(t("electric_train", lang), value=False, help=t("electric_train_tooltip",lang))
+    with col11:
+        locomotive_cote = None
+        if locomotives == 1:
+            locomotive_cote = st.radio(
+                t("locomotive_side", lang),
+                options=["left", "right"],
+                format_func=lambda x: t(x, lang),
+                help=t("locomotive_side_tooltip",lang)
+            )
+    st.divider()
 
     if st.button(t("submit_train", lang)):
+        from datetime import datetime
         arrivee = datetime.combine(date_arr, heure_arr)
         depart = datetime.combine(date_dep, heure_dep)
         if depart <= arrivee:
             st.error(t("departure_after_arrival_error", lang))
             return
 
-        # FR : Calcul de l'ID du prochain train.
-        # EN : Compute next train ID.
         if simulation.trains:
             next_id = max(train.id for train in simulation.trains) + 1
         else:
@@ -89,14 +93,12 @@ def afficher_formulaire_ajout(simulation, lang, t):
             type=type_train
         )
         train.electrique = electrique
-        train.locomotive_cote = locomotive_cote  # FR : Stocke le côté de la locomotive / EN : Store locomotive side
+        train.locomotive_cote = locomotive_cote
         erreur = simulation.ajouter_train(train, depot, optimiser=optimiser)
-        
+
         if erreur:
             st.error(erreur)
         else:
-            # FR : Stocke l'indicateur et le nom du train ajouté pour affichage.
-            # EN : Store indicator and train name for display.
             st.session_state.train_added = True
             st.session_state.last_train_name = nom
             st.rerun()
@@ -104,7 +106,7 @@ def afficher_formulaire_ajout(simulation, lang, t):
     # --- FR : Import de trains depuis un fichier CSV ou Excel ---
     # --- EN : Import trains from a CSV or Excel file ---
     st.markdown("### " + t("import_trains", lang))
-    uploaded_file = st.file_uploader(t("import_file", lang), type=["csv", "xlsx"])
+    uploaded_file = st.file_uploader(t("import_file", lang), type=["csv", "xlsx"], help=t("import_file_tooltip",lang))
     if uploaded_file:
         if uploaded_file.name.endswith(".csv"):
             df_import = pd.read_csv(uploaded_file, sep=None, engine="python")
@@ -112,6 +114,8 @@ def afficher_formulaire_ajout(simulation, lang, t):
             df_import = pd.read_excel(uploaded_file)
         st.markdown("#### " + t("file_preview", lang))
         st.dataframe(df_import.head(), use_container_width=True)
+        if "import_done" not in st.session_state:
+            st.session_state.import_done = False
         if st.button(t("add_imported_trains", lang)):
             # FR : Calculer l'ID max avant la boucle d'import.
             # EN : Compute max ID before import loop.
@@ -163,8 +167,11 @@ def afficher_formulaire_ajout(simulation, lang, t):
                     simulation.ajouter_train(train, train.depot)
                 except Exception as e:
                     st.warning(f"{t('import_error_row', lang)} {row.to_dict()}: {e}")
+            st.session_state.import_done = True
             st.success(t("import_success", lang))
             st.rerun()
+        elif st.session_state.import_done:
+            st.info(t("import_success", lang))
             
         st.markdown("#### " + t("import_example_title", lang))
         st.info(t("import_example_help", lang))

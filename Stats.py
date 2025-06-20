@@ -66,58 +66,63 @@ def calculer_statistiques_globales(simulation):
         EN : Dictionary of statistics
     """
     trains = simulation.trains
-    trains_glostrup = [train for train in trains if train.depot == "Glostrup"]
-    trains_naestved = [train for train in trains if train.depot == "Naestved"]
+    depots = simulation.depots.keys()
+    stats_par_depot = {}
+    for depot in depots:
+        trains_depot = [train for train in trains if train.depot == depot]
+        stats_par_depot[depot] = {
+            "trains": len(trains_depot),
+            "taux_occupation": calculer_taux_occupation(
+                simulation.depots[depot]["occupation"],
+                simulation.depots[depot]["numeros_voies"]
+            )
+        }
     trains_electriques = [train for train in trains if train.electrique]
-
     temps_moyen_attente = calculer_temps_moyen_attente(trains)
-    taux_occupation_glostrup = calculer_taux_occupation(simulation.occupation_a, simulation.numeros_voies_a)
-    taux_occupation_naestved = calculer_taux_occupation(simulation.occupation_b, simulation.numeros_voies_b)
-    taux_occupation_global = calculer_taux_occupation(
-        simulation.occupation_a + simulation.occupation_b,
-        simulation.numeros_voies_a + simulation.numeros_voies_b
-    )
+    # Taux d'occupation global
+    all_occupations = []
+    all_voies = []
+    for depot in depots:
+        all_occupations += simulation.depots[depot]["occupation"]
+        all_voies += simulation.depots[depot]["numeros_voies"]
+    taux_occupation_global = calculer_taux_occupation(all_occupations, all_voies)
 
     return {
         "total_trains": len(trains),  # Nombre total de trains / Total number of trains
-        "trains_glostrup": len(trains_glostrup),  # Trains à Glostrup / Trains at Glostrup
-        "trains_naestved": len(trains_naestved),  # Trains à Naestved / Trains at Naestved
         "trains_electriques": len(trains_electriques),  # Trains électriques / Electric trains
         "temps_moyen_attente": temps_moyen_attente,  # Temps moyen d'attente / Average waiting time
         "taux_occupation_global": taux_occupation_global,  # Taux d'occupation global / Global occupation rate
-        "taux_occupation_glostrup": taux_occupation_glostrup,  # Taux d'occupation Glostrup / Glostrup occupation rate
-        "taux_occupation_naestved": taux_occupation_naestved,  # Taux d'occupation Naestved / Naestved occupation rate
+        "stats_par_depot": stats_par_depot
     }
 
 def calculer_requirements(trains, t, lang):
     """
-    FR : Calcule les besoins en ressources pour les trains de type Testing.
-    EN : Compute resource requirements for 'Testing' trains.
-    Args:
-        trains: Liste des trains / List of trains
-        t: Fonction de traduction / Translation function
-        lang: Langue / Language
-    Returns:
-        FR : Dictionnaire contenant les besoins en "test drivers" et locomotives.
-        EN : Dictionary with "test drivers" and locomotives requirements.
+    FR : Calcule les besoins en ressources pour les trains de type Testing, par dépôt.
+    EN : Compute resource requirements for 'Testing' trains, by depot.
     """
     requirements = {
         "test_drivers": 0,
         "locomotives": 0,
-        "details": []  # Détails par train / Details per train
+        "details": [],  # Détails par train
+        "by_depot": {}  # Nouveau : besoins par dépôt
     }
 
     for train in trains:
-        if train.type == "testing":  # Comparer avec la traduction du type / Compare with translated type if needed
+        if train.type == "testing":
             requirements["test_drivers"] += 1
             requirements["locomotives"] += 2
             requirements["details"].append({
                 "train_name": train.nom,
                 "start_time": train.arrivee,
-                "end_time": train.depart
+                "end_time": train.depart,
+                "depot": train.depot
             })
-            t(train.type, lang)  # Appel de traduction (inutile ici sauf pour effet de bord)
-
+            # Ajout par dépôt
+            if train.depot not in requirements["by_depot"]:
+                requirements["by_depot"][train.depot] = {"test_drivers": 0, "locomotives": 0, "trains": []}
+            requirements["by_depot"][train.depot]["test_drivers"] += 1
+            requirements["by_depot"][train.depot]["locomotives"] += 2
+            requirements["by_depot"][train.depot]["trains"].append(train.nom)
     return requirements
 
 def regrouper_requirements_par_jour(trains, t, lang):

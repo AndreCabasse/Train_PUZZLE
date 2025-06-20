@@ -107,15 +107,22 @@ class Simulation:
         """
         if depots_config is None:
             depots_config = {
-                "Glostrup": {"numeros_voies": [7,8,9,11], "longueurs_voies": [290,340,400,300]},
-                "Naestved": {"numeros_voies": [1,2,3,4], "longueurs_voies": [250,300,350,280]}
+                "Glostrup": {"numeros_voies": [7,8,9,11], "longueurs_voies": [290,340,400,300], "lat": 55.662194, "lon": 12.393508},
+                "Naestved": {"numeros_voies": [1,2,3,4], "longueurs_voies": [250,300,350,280], "lat": 55.194538, "lon": 11.822616},
+                "Taulov": {"numeros_voies": [21], "longueurs_voies": [280], "lat": 55.546012, "lon": 9.632929},
+                "KAC": {"numeros_voies": [22], "longueurs_voies": [280], "lat": 55.624757, "lon": 12.680361},
+                "Helgoland": {"numeros_voies": [23], "longueurs_voies": [280], "lat": 55.714857, "lon": 12.582771},
+                "Padborg": {"numeros_voies": [24], "longueurs_voies": [280], "lat": 54.824899, "lon": 9.357716},
+                "Langenfelde": {"numeros_voies": [25], "longueurs_voies": [280], "lat": 53.581551, "lon": 9.924246},
             }
         self.depots = {}
         for nom, conf in depots_config.items():
             self.depots[nom] = {
                 "numeros_voies": conf["numeros_voies"],
                 "longueurs_voies": conf["longueurs_voies"],
-                "occupation": []  # FR: Liste des tuples (voie_idx, debut, fin, train) / EN: List of tuples (track_idx, start, end, train)
+                "occupation": [],  # FR: Liste des tuples (voie_idx, debut, fin, train) / EN: List of tuples (track_idx, start, end, train)
+                "lat": conf.get("lat"),
+                "lon": conf.get("lon"),
             }
 
         self.trains = []  # FR: Liste de tous les trains / EN: List of all trains

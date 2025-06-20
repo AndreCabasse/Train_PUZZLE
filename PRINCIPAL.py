@@ -34,6 +34,7 @@ import streamlit as st
 from datetime import datetime, timedelta
 from Simulation import Simulation
 from Traduction import t, get_translation
+from streamlit_option_menu import option_menu
 from Interface import (
     afficher_formulaire_ajout, 
     afficher_tableau_trains, 
@@ -61,13 +62,13 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.utils import ImageReader
 
-def plotly_double_fig_to_pdf(fig1, legend_html1, fig2, legend_html2):
+def plotly_multi_fig_to_pdf(figs, legends_html):
     buffer = io.BytesIO()
     c = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
+    y_offset = height - 40
 
-    def add_fig(fig, legend_html, y_offset):
-        # Convertit la figure Plotly en image PNG
+    for fig, legend_html in zip(figs, legends_html):
         img_bytes = fig.to_image(format="png", width=1200, height=600, scale=2)
         img = Image.open(io.BytesIO(img_bytes))
         aspect = img.width / img.height
@@ -80,26 +81,25 @@ def plotly_double_fig_to_pdf(fig1, legend_html1, fig2, legend_html2):
         img_io = io.BytesIO()
         img.save(img_io, format="PNG")
         img_io.seek(0)
-        c.drawImage(ImageReader(img_io), 20, y_offset - img_height, width=img_width, height=img_height)  # <-- Correction ici
+        c.drawImage(ImageReader(img_io), 20, y_offset - img_height, width=img_width, height=img_height)
         # Ajoute la légende si fournie
-        if legend_html:
-            from reportlab.lib.utils import simpleSplit
-            legend_text = re.sub('<[^<]+?>', '', legend_html)  # retire les balises HTML
-            legend_lines = simpleSplit(legend_text, "Helvetica", 12, width-40)
-            y = y_offset - img_height - 20
-            for line in legend_lines:
-                c.drawString(30, y, line)
-                y -= 15
-        return y_offset - img_height - 40
-
-    y_offset = height - 40
-    y_offset = add_fig(fig1, legend_html1, y_offset)
-    y_offset = add_fig(fig2, legend_html2, y_offset)
+        from reportlab.lib.utils import simpleSplit
+        legend_text = re.sub('<[^<]+?>', '', legend_html)
+        legend_lines = simpleSplit(legend_text, "Helvetica", 12, width-40)
+        y = y_offset - img_height - 20
+        for line in legend_lines:
+            c.drawString(30, y, line)
+            y -= 15
+        y_offset = y - 40
+        if y_offset < 100:
+            c.showPage()
+            y_offset = height - 40
     c.showPage()
     c.save()
     buffer.seek(0)
     return buffer
-# ---------------------------------------------------------------------------
+
+#----------------------------------------------------
 # FR : CONFIGURATION DE LA PAGE ET INITIALISATION DE LA SIMULATION
 # EN : PAGE CONFIGURATION AND SIMULATION INITIALIZATION
 # ---------------------------------------------------------------------------
@@ -111,21 +111,29 @@ st.set_page_config(
     layout="wide",
     page_icon="🚄"
 )
-
+# --- Fond gris clair pour toute l'app ---
+st.markdown("""
+    <style>
+    body, .stApp, .block-container {
+        background-color: #f4f6f8 !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 # --- CSS personnalisé pour un look moderne ---
 st.markdown("""
     <style>
-    /* Bandeau logo : padding haut/bas augmenté, logo centré verticalement */
+    /* --- Bandeau logo modernisé --- */
     .logo-bandeau {
         width:100%;
-        background:linear-gradient(90deg,#1976d2 0%,#4fc3f7 100%);
-        padding:48px 0 32px 0; /* padding-top et padding-bottom augmentés */
+        background:linear-gradient(90deg,#ffffff 0%,#d32f2f 100%);
+        padding:48px 0 32px 0;
         margin-bottom:18px;
         display:flex;
         justify-content:center;
         align-items:center;
-        box-shadow:0 2px 8px #0002;
         min-height:120px;
+        border: 2px solid #e0e0e0;         /* Ajoute une bordure grise claire */
+        border-radius: 18px;                /* Coins arrondis pour effet card */
     }
     .logo-bandeau img {
         max-height:80px;
@@ -133,9 +141,10 @@ st.markdown("""
         object-fit:contain;
         margin-top:0;
         margin-bottom:0;
+        filter: drop-shadow(0 2px 8px #b71c1c44);
     }
 
-    /* Contraste pour TOUS les champs de formulaire, même dans les colonnes */
+    /* --- Champs de formulaire --- */
     .stTextInput input,
     .stNumberInput input,
     .stDateInput input,
@@ -143,52 +152,166 @@ st.markdown("""
     .stTextArea textarea,
     .stSelectbox div[data-baseweb="select"] > div,
     .stSelectbox input {
-        background: #f7fafc !important;
-        border: 2px solid #b0bec5 !important;
-        border-radius: 8px !important;
+        background: #fff8f8 !important;
+        border: 2px solid #d32f2f !important;
+        border-radius: 10px !important;
         color: #222 !important;
+        box-shadow: 0 1px 4px #b71c1c11;
+        font-size: 1.05em;
+    }
+    label, .stTextInput label, .stNumberInput label, .stDateInput label, .stTimeInput label {
+        color: #b71c1c !important;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+    }
+    /* ...autres styles... */
+
+    /* Force un contour sur les time_input */
+    .stTimeInput, .stTimeInput input, .stTimeInput div[data-baseweb="input"] {
+        border: 2px solid #d32f2f !important;
+        border-radius: 8px !important;
+        background: #fff !important;
         box-shadow: 0 1px 2px #0001;
     }
-    /* Contraste pour les labels */
-    label, .stTextInput label, .stNumberInput label, .stDateInput label, .stTimeInput label {
-        color: #1976d2 !important;
-        font-weight: 500;
+    .stTimeInput:focus-within, .stTimeInput input:focus, .stTimeInput div[data-baseweb="input"]:focus-within {
+        border: 2.5px solid #d32f2f !important;
+        box-shadow: 0 0 0 2px #90caf9;
+        outline: none !important;
     }
-    /* Contraste pour les DataFrames et tables */
+
+    /* --- DataFrames et tables --- */
     .stDataFrame, .stTable {
-        background: #f7fafc !important;
-        border-radius: 10px;
+        background: #fff8f8 !important;
+        border-radius: 14px;
         padding: 12px;
-        box-shadow: 0 2px 8px #0001;
-        border: 1.5px solid #b0bec5;
+        box-shadow: 0 2px 12px #b71c1c11;
+        border: 2px solid #d32f2f;
     }
-    .stButton>button {
-        background-color: #1976d2;
-        color: white;
-        border-radius: 6px;
-        font-weight: bold;
-        padding: 0.5em 1.5em;
-        border: none;
+
+    /* --- Tabs modernisés --- */
+    .stTabs [data-baseweb="tab-list"] {
+        background: #fbe9e7;
+        border-radius: 10px;
+        padding: 0.5em;
+        border: 1.5px solid #d32f2f;
+    }
+    .stTabs [data-baseweb="tab"] {
+        font-weight: 700;
+        color: #b71c1c;
+        border-radius: 8px 8px 0 0;
+        margin-right: 6px;
+        font-size: 1.08em;
         transition: background 0.2s;
     }
+    .stTabs [aria-selected="true"] {
+        background: #d32f2f !important;
+        color: white !important;
+        box-shadow: 0 2px 8px #b71c1c22;
+    }
+
+    /* --- Titres et sous-titres --- */
+    h1, h2, h3, .stSubheader {
+        color: #b71c1c !important;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-weight: 800;
+        letter-spacing: 0.01em;
+    }
+
+    /* --- Boutons --- */
+    .stButton>button {
+        background-color: #d32f2f;
+        color: white;
+        border-radius: 8px;
+        font-weight: bold;
+        padding: 0.6em 1.7em;
+        border: none;
+        font-size: 1.08em;
+        box-shadow: 0 2px 8px #b71c1c22;
+        transition: background 0.2s, box-shadow 0.2s;
+    }
     .stButton>button:hover {
-        background-color: #125ea2;
+        background-color: #b71c1c;
+        box-shadow: 0 4px 16px #b71c1c33;
     }
+
+    /* --- Metrics --- */
     .stMetric {
-        background: #e0eafc;
-        border-radius: 8px;
-        padding: 8px 0;
-        margin-bottom: 8px;
+        background: #fbe9e7;
+        border-radius: 10px;
+        padding: 10px 0;
+        margin-bottom: 10px;
+        border: 1.5px solid #d32f2f;
+        color: #b71c1c !important;
+        font-weight: 700;
     }
+
+    /* --- Sidebar --- */
     .stSidebar .stSlider, .stSidebar .stSelectbox, .stSidebar .stButton {
-        background: #f0f0f5;
-        border-radius: 8px;
+        background: #fff8f8;
+        border-radius: 10px;
+        border: 1.5px solid #d32f2f;
     }
+    .stSidebar .stSlider .st-cg {
+        background: #d32f2f !important;
+    }
+    .stSidebar .stSlider .st-cg .st-ch {
+        background: #b71c1c !important;
+    }
+
+    /* --- Divers --- */
     .stDivider { margin: 1.5em 0; }
-    h2, .stSubheader { color: #1976d2 !important; }
     .block-container { padding-top: 1.5rem; }
+    .stAlert {
+        border-radius: 10px !important;
+        border: 2px solid #d32f2f !important;
+        background: #fff8f8 !important;
+        color: #b71c1c !important;
+    }
     </style>
 """, unsafe_allow_html=True)
+
+
+if st.session_state.get("dark_mode"):
+    st.markdown("""
+    <style>
+    body, .stApp, .block-container {
+        background: #181c24 !important;
+        color: #e0e6ef !important;
+    }
+    .stDataFrame, .stTable {
+        background: #232936 !important;
+        color: #e0e6ef !important;
+        border-color: #333 !important;
+    }
+    .stTextInput input, .stNumberInput input, .stDateInput input, .stTimeInput input, .stTextArea textarea {
+        background: #232936 !important;
+        color: #e0e6ef !important;
+        border: 2px solid #333 !important;
+    }
+    label, .stTextInput label, .stNumberInput label, .stDateInput label, .stTimeInput label {
+        color: #90caf9 !important;
+    }
+    .stButton>button {
+        background: #232936 !important;
+        color: #90caf9 !important;
+        border: 1px solid #90caf9 !important;
+    }
+    .stButton>button:hover {
+        background: #1976d2 !important;
+        color: #fff !important;
+    }
+    .stTabs [data-baseweb="tab-list"] {
+        background: #232936 !important;
+    }
+    .stTabs [aria-selected="true"] {
+        background: #1976d2 !important;
+        color: #fff !important;
+    }
+    .stSidebar {
+        background: #181c24 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 # --- Bandeau logo modernisé avec nouvelle classe ---
 import base64
@@ -219,9 +342,35 @@ if 'simulation' not in st.session_state:
 
 # FR : Sélecteur de langue dans la barre latérale
 # EN : Sidebar language selector
-lang = st.sidebar.selectbox("Langue", ["fr", "en", "da"])
+lang = st.sidebar.selectbox("Language", ["fr", "en", "da"], help="Choose the language")
 t_dict = get_translation(lang)
+st.sidebar.divider()
 
+dark_mode = st.sidebar.toggle("🌙 Mode sombre", key="dark_mode")
+
+with st.sidebar:
+    selected_tab = option_menu(
+        "Menu",
+        [
+            "➕ " + t("add_train", lang),
+            "📋 " + t("train_list", lang),
+            "📊 " + t("graph_title", lang),
+            "📈 " + t("Statistiques", lang),
+            "🛠️ " + t("requirements", lang),
+            "🎮 " + t("Gestion des voies", lang),
+            "🗺️ " + t("Carte", lang),
+        ],
+        icons=["plus", "list", "bar-chart", "graph-up", "tools", "controller", "map"],
+        menu_icon="cast",
+        default_index=0,
+        orientation="vertical",
+        styles={
+            "container": {"padding": "0!important", "background-color": "#f0f0f5"},
+            "icon": {"color": "#1976d2", "font-size": "18px"},
+            "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#e3f2fd"},
+            "nav-link-selected": {"background-color": "#1976d2", "color": "white"},
+        }
+    )
 # ---------------------------------------------------------------------------
 # FR : TITRE PRINCIPAL ET PARAMÈTRES DE SÉCURITÉ
 # EN : MAIN TITLE AND SAFETY PARAMETERS
@@ -237,7 +386,7 @@ st.markdown(
 st.divider()
 # FR : Délai de sécurité entre deux trains sur une même voie (slider dans la sidebar)
 # EN : Safety delay between two trains on the same track (slider in sidebar)
-st.sidebar.subheader(t("security_settings", lang))
+st.sidebar.subheader(t("security_settings", lang), help=t("security_delay_tooltip",lang))
 delai_securite = st.sidebar.slider(
     t("security_delay", lang), min_value=0, max_value=30, value=10, step=1
 )
@@ -249,6 +398,36 @@ if st.sidebar.button(t("reset", lang)):
     st.session_state.simulation.reset()
     st.success(t("simulation_reset", lang))
     st.rerun()
+    
+import pickle
+
+st.sidebar.markdown("---")
+st.sidebar.subheader(t("save_restore", lang))
+
+# Export
+if st.sidebar.button(t("export_simulation", lang), help=t( "export_simulation_tooltip",lang)):
+    buffer = io.BytesIO()
+    pickle.dump(st.session_state.simulation, buffer)
+    buffer.seek(0)
+    st.sidebar.download_button(
+        label=t("download_simulation", lang),
+        data=buffer,
+        file_name="simulation.pkl",
+        mime="application/octet-stream"
+    )
+
+# Import
+uploaded_sim = st.sidebar.file_uploader(t("import_simulation", lang), type=["pkl"], help=t( "import_simulation_tooltip",lang))
+if uploaded_sim:
+    if st.sidebar.button(t("load_this_file", lang), help=t("load_this_file_tooltip",lang)):
+        try:
+            simulation_importee = pickle.load(uploaded_sim)
+            st.session_state.simulation = simulation_importee
+            st.success(t("import_success_sim", lang))
+            st.experimental_set_query_params(imported="1")
+            st.rerun()
+        except Exception as e:
+            st.error(t("import_error_sim", lang, e=e))
 
 # ---------------------------------------------------------------------------
 # FR : CALCUL DES STATISTIQUES GLOBALES
@@ -274,21 +453,14 @@ stats = calculer_statistiques_globales(st.session_state.simulation)
 #      tab5: Resource requirements
 #      tab6: Wagon management mini-game
 
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "➕ " + t("add_train", lang),
-    "📋 " + t("train_list", lang),
-    "📊 " + t("graph_title", lang),
-    "📈 " + t("Statistiques", lang),
-    "🛠️ " + t("requirements", lang),
-    "🎮 " + t("Gestion des voies", lang)
-])
+
 
 # ---------------------------------------------------------------------------
 # FR : ONGLET 1 : AJOUT / MODIFICATION / SUPPRESSION DE TRAINS
 # EN : TAB 1: ADD / MODIFY / DELETE TRAINS
 # ---------------------------------------------------------------------------
 
-with tab1:
+if selected_tab == "➕ " + t("add_train", lang):
     sous_tab_ajout, sous_tab_modif, sous_tab_suppr = st.tabs([
         t("add_train", lang),
         t("modify_train", lang),
@@ -298,64 +470,52 @@ with tab1:
         # FR : Formulaire d'ajout d'un train
         # EN : Form to add a new train
         afficher_formulaire_ajout(st.session_state.simulation, lang, t)
+        st.divider() 
     with sous_tab_modif:
         # FR : Formulaire de modification d'un train existant
         # EN : Form to modify an existing train
         afficher_modification_train(st.session_state.simulation.trains, st.session_state.simulation, t, lang)
+        st.divider() 
     with sous_tab_suppr:
         # FR : Formulaire de suppression d'un train
         # EN : Form to delete a train
         afficher_suppression_train(st.session_state.simulation.trains, st.session_state.simulation, t, lang)
+        st.divider() 
 
 # ---------------------------------------------------------------------------
 # FR : ONGLET 2 : LISTE DES TRAINS PAR DÉPÔT
 # EN : TAB 2: LIST OF TRAINS BY DEPOT
 # ---------------------------------------------------------------------------
 
-with tab2:
-    # FR : Tableau pour le dépôt A (Glostrup)
-    # EN : Table for depot A (Glostrup)
-    st.subheader(t("Depot de Glostrup", lang))
-    afficher_tableau_trains(
-        [train for train in st.session_state.simulation.trains if train.depot == "Glostrup"],
-        st.session_state.simulation, t, lang
-    )
+elif selected_tab == "📋 " + t("train_list", lang):
+    for depot in st.session_state.simulation.depots.keys():
+        st.subheader(depot)
+        afficher_tableau_trains(
+            [train for train in st.session_state.simulation.trains if train.depot == depot],
+            st.session_state.simulation, t, lang
+        )
+        st.divider()  
 
-    # FR : Tableau pour le dépôt B (Naestved)
-    # EN : Table for depot B (Naestved)
-    st.subheader(t("Depot de Naestved", lang))
-    afficher_tableau_trains(
-        [train for train in st.session_state.simulation.trains if train.depot == "Naestved"],
-        st.session_state.simulation, t, lang
-    )
-    
 # ---------------------------------------------------------------------------
 # FR : ONGLET 3 : VISUALISATIONS GRAPHIQUES
 # EN : TAB 3: VISUALIZATIONS (OCCUPATION, EXPORT, GANTT, ETC.)
 # ---------------------------------------------------------------------------
-with tab3:
-    sous_tab_occ, sous_tab_export, sous_tab_instant, sous_tab_gantt_a, sous_tab_gantt_b = st.tabs([
-        t("graph_title", lang),
-        "Export",
-        t("train_length_by_track", lang),
-        f"Gantt {t('Depot de Glostrup', lang)}",
-        f"Gantt {t('Depot de Naestved', lang)}"
-    ])
+elif selected_tab == "📊 " + t("graph_title", lang):
+    depot_names = list(st.session_state.simulation.depots.keys())
+    sous_tabs = [t("graph_title", lang), "Export", t("train_length_by_track", lang), "Gantt"]
+    sous_tabs_objs = st.tabs(sous_tabs)
+    sous_tab_occ, sous_tab_export, sous_tab_instant, sous_tab_gantt = sous_tabs_objs
     
     # FR : Visualisation occupation des voies pour chaque dépôt
     # EN : Occupation visualization for each depot
     with sous_tab_occ:
-        st.subheader(t("Depot de Glostrup", lang))
-        fig_a = creer_graphique_occupation_depot(
-            st.session_state.simulation, "Glostrup", st.session_state.base_time, t, lang
-        )
-        st.plotly_chart(fig_a, use_container_width=True)
-
-        st.subheader(t("Depot Naestved", lang))
-        fig_b = creer_graphique_occupation_depot(
-            st.session_state.simulation, "Naestved", st.session_state.base_time, t, lang
-        )
-        st.plotly_chart(fig_b, use_container_width=True)
+        for depot in depot_names:
+            st.subheader(depot)
+            fig = creer_graphique_occupation_depot(
+                st.session_state.simulation, depot, st.session_state.base_time, t, lang
+            )
+            st.plotly_chart(fig, use_container_width=True)
+            st.divider() 
         
     # FR : Export des occupations (CSV, Excel, JSON)
     # EN : Export occupation data (CSV, Excel, JSON)
@@ -410,66 +570,43 @@ with tab3:
         with col2:
             heure_instant = st.time_input(t("base_time", lang), st.session_state.base_time.time(), key="heure_instant")
         instant = datetime.combine(date_instant, heure_instant)
+        # Ajout du selectbox pour choisir le dépôt à afficher
+        depot_select = st.selectbox("Dépôt à afficher", depot_names, key="depot_select_longueur")
+        st.subheader(depot_select)
         fig_trains_instant = creer_graphique_trains_par_longueur_detaille(
-            st.session_state.simulation, t, instant, lang
+            st.session_state.simulation, t, instant, lang, depot=depot_select
         )
-        st.plotly_chart(fig_trains_instant, use_container_width=True)
+        st.plotly_chart(fig_trains_instant, use_container_width=True) 
 
-    # FR : Gantt Glostrup
-    # EN : Gantt chart for Glostrup
-    with sous_tab_gantt_a:
-        st.markdown(f"### {t('Planning', lang)} - {t('Depot de Glostrup', lang)}")
-        fig_gantt_a = creer_gantt_occupation_depot(
-            st.session_state.simulation, "Glostrup", t, lang
+    with sous_tab_gantt:
+        depot_gantt = st.selectbox("Dépôt à afficher", depot_names, key="depot_select_gantt")
+        st.markdown(f"### {t('Planning', lang)} - {depot_gantt}")
+        fig_gantt = creer_gantt_occupation_depot(
+            st.session_state.simulation, depot_gantt, t, lang
         )
-        st.plotly_chart(fig_gantt_a, use_container_width=True)
-        # Export Gantt Glostrup
-        data_gantt_a = []
-        for voie_idx, debut, fin, train in st.session_state.simulation.occupation_a:
-            data_gantt_a.append({
-                "Voie": st.session_state.simulation.numeros_voies_a[voie_idx],
+        st.plotly_chart(fig_gantt, use_container_width=True)
+        # Export Gantt
+        occupation = st.session_state.simulation.depots[depot_gantt]["occupation"]
+        numeros_voies = st.session_state.simulation.depots[depot_gantt]["numeros_voies"]
+        data_gantt = []
+        for voie_idx, debut, fin, train in occupation:
+            data_gantt.append({
+                "Voie": numeros_voies[voie_idx],
                 "Début": debut.strftime("%Y-%m-%d %H:%M"),
                 "Fin": fin.strftime("%Y-%m-%d %H:%M"),
                 "Train": train.nom,
                 "Type": t(train.type, lang) if hasattr(train, "type") else "",
                 "Électrique": "⚡" if getattr(train, "electrique", False) else "",
             })
-        df_gantt_a = pd.DataFrame(data_gantt_a)
-        csv_gantt_a = df_gantt_a.to_csv(index=False, sep=";").encode('utf-8')
+        df_gantt = pd.DataFrame(data_gantt)
+        csv_gantt = df_gantt.to_csv(index=False, sep=";").encode('utf-8')
         st.download_button(
-            label="📥 Télécharger le planning Gantt Glostrup (CSV)",
-            data=csv_gantt_a,
-            file_name="planning_gantt_glostrup.csv",
+            label=f"📥 Télécharger le planning Gantt {depot_gantt} (CSV)",
+            data=csv_gantt,
+            file_name=f"planning_gantt_{depot_gantt.lower()}.csv",
             mime="text/csv"
         )
-
-    # FR : Gantt Naestved
-    # EN : Gantt chart for Naestved
-    with sous_tab_gantt_b:
-        st.markdown(f"### {t('Planning', lang)} - {t('Depot de Naestved', lang)}")
-        fig_gantt_b = creer_gantt_occupation_depot(
-            st.session_state.simulation, "Naestved", t, lang
-        )
-        st.plotly_chart(fig_gantt_b, use_container_width=True)
-        # Export Gantt Naestved
-        data_gantt_b = []
-        for voie_idx, debut, fin, train in st.session_state.simulation.occupation_b:
-            data_gantt_b.append({
-                "Voie": st.session_state.simulation.numeros_voies_b[voie_idx],
-                "Début": debut.strftime("%Y-%m-%d %H:%M"),
-                "Fin": fin.strftime("%Y-%m-%d %H:%M"),
-                "Train": train.nom,
-                "Type": t(train.type, lang) if hasattr(train, "type") else "",
-                "Électrique": "⚡" if getattr(train, "electrique", False) else "",
-            })
-        df_gantt_b = pd.DataFrame(data_gantt_b)
-        csv_gantt_b = df_gantt_b.to_csv(index=False, sep=";").encode('utf-8')
-        st.download_button(
-            label="📥 Télécharger le planning Gantt Naestved (CSV)",
-            data=csv_gantt_b,
-            file_name="planning_gantt_naestved.csv",
-            mime="text/csv"
-        )
+            
     legend_items = [
         (t("testing", lang), "red"),
         (t("storage", lang), "blue"),
@@ -492,10 +629,17 @@ with tab3:
             
     if 'pdf_gantt_both' not in st.session_state:
         st.session_state.pdf_gantt_both = None
-    
+        
+    figs_gantt = []
+    legends_html = []
+    for depot in depot_names:
+        fig = creer_gantt_occupation_depot(st.session_state.simulation, depot, t, lang)
+        figs_gantt.append(fig)
+        legends_html.append(make_legend_html(legend_items))
+        
     def generate_pdf():
         try:
-            return plotly_double_fig_to_pdf(fig_gantt_a, legend_html_a, fig_gantt_b, legend_html_b)
+            return plotly_multi_fig_to_pdf(figs_gantt, legends_html)
         except Exception as e:
             st.error(f"Erreur lors de la génération du PDF : {e}")
             return None
@@ -516,13 +660,12 @@ with tab3:
             file_name="planning_gantt_complet.pdf",
             mime="application/pdf"
         )
-
 # ---------------------------------------------------------------------------
 # FR : ONGLET 4 : STATISTIQUES GLOBALES
 # EN : TAB 4: GLOBAL STATISTICS
 # ---------------------------------------------------------------------------
 
-with tab4:
+elif selected_tab == "📈 " + t("Statistiques", lang):
     st.subheader(t("Statistiques globales", lang))
 
     # FR : Affichage sous forme de colonnes de métriques
@@ -530,57 +673,31 @@ with tab4:
     col1, col2, col3 = st.columns(3)
     with col1:
         st.metric(label=t("train_list", lang), value=stats['total_trains'])
-        st.metric(label=t("Depot de Glostrup", lang), value=stats['trains_glostrup'])
-        st.metric(label=t("Depot de Naestved", lang), value=stats['trains_naestved'])
-    with col2:
         st.metric(label=t("electric_train", lang), value=stats['trains_electriques'])
+    with col2:
         st.metric(label=t("average_wait", lang), value=f"{stats['temps_moyen_attente']} min")
-    with col3:
         st.metric(label=t("occupancy_rate", lang), value=f"{stats['taux_occupation_global']}%")
-        st.metric(label=f"{t('Depot de Glostrup', lang)}", value=f"{stats['taux_occupation_glostrup']}%")
-        st.metric(label=f"{t('Depot de Naestved', lang)}", value=f"{stats['taux_occupation_naestved']}%")
-
+    with col3:
+        for depot, depot_stats in stats['stats_par_depot'].items():
+            st.metric(label=f"{depot}", value=f"{depot_stats['trains']} trains / {depot_stats['taux_occupation']}%")
+    st.divider()
     # FR : Graphique de répartition des trains par dépôt
     # EN : Pie chart of trains by depot
     import plotly.express as px
     depot_counts = [
-        {"Depot": t("Depot de Glostrup", lang), "Trains": stats['trains_glostrup']},
-        {"Depot": t("Depot de Naestved", lang), "Trains": stats['trains_naestved']}
+        {"Depot": depot, "Trains": depot_stats["trains"]}
+        for depot, depot_stats in stats['stats_par_depot'].items()
     ]
-    fig_depot = px.pie(
-        depot_counts,
-        names="Depot",
-        values="Trains",
-        title=t("train_list", lang),
-        color_discrete_sequence=["#1976d2", "#4fc3f7"]
-    )
-    fig_depot.update_traces(
-        textinfo='percent+label',
-        pull=[0.05, 0],
-        marker=dict(line=dict(color='#fff', width=2))
-    )
-    fig_depot.update_layout(
-        title=dict(
-            font=dict(size=22, family="Segoe UI, Arial"),
-            x=0.5
-        ),
-        legend=dict(
-            orientation="h",
-            yanchor="top",
-            y=-0.18,
-            xanchor="left",
-            x=0,
-            bgcolor="rgba(255,255,255,0.7)",
-            bordercolor="#b0bec5",
-            borderwidth=1
-        ),
-        plot_bgcolor="#f7fafc",
-        paper_bgcolor="#f0f0f5",
-        font=dict(family="Segoe UI, Arial", size=14, color="#222"),
-        margin=dict(l=40, r=40, t=90, b=90)
-    )
-    st.plotly_chart(fig_depot, use_container_width=True)
-
+    if depot_counts:
+        fig_depot = px.pie(
+            depot_counts,
+            names="Depot",
+            values="Trains",
+            title=t("train_list", lang),
+            color_discrete_sequence=px.colors.qualitative.Pastel
+        )
+        st.plotly_chart(fig_depot, use_container_width=True)
+    st.divider()
     # Bar chart by train type
     type_counts = {}
     for train in st.session_state.simulation.trains:
@@ -622,14 +739,13 @@ with tab4:
                 borderwidth=1
                 ),
             )
-        st.plotly_chart(fig_type, use_container_width=True)
-    
+        st.plotly_chart(fig_type, use_container_width=True)   
 # ---------------------------------------------------------------------------
 # FR : ONGLET 5 : REQUIREMENTS (BESOINS EN RESSOURCES)
 # EN : TAB 5: REQUIREMENTS (RESOURCE NEEDS)
 # ---------------------------------------------------------------------------
 
-with tab5:
+elif selected_tab == "🛠️ " + t("requirements", lang):
     st.subheader(t("requirements", lang))
     requirements = calculer_requirements(st.session_state.simulation.trains, t, lang)
     requirements_par_jour = regrouper_requirements_par_jour(st.session_state.simulation.trains, t, lang)
@@ -641,7 +757,12 @@ with tab5:
         st.metric(label=t("test_drivers", lang), value=requirements["test_drivers"])
     with col2:
         st.metric(label=t("locomotives", lang), value=requirements["locomotives"])
-
+    st.divider()
+    # Affichage des besoins par dépôt
+    if "by_depot" in requirements and requirements["by_depot"]:
+        st.markdown("###  " + t("Besoins par dépôt", lang))
+        for depot, besoins in requirements["by_depot"].items():
+            st.write(f"**{depot}** : {besoins['test_drivers']} {t('test_drivers', lang)}, {besoins['locomotives']} {t('locomotives', lang)}")
     # FR : Détail par type de train
     # EN : Details by train type
     st.markdown("#### " + t("details", lang))
@@ -654,7 +775,8 @@ with tab5:
                 t("arrival_time", lang): train.arrivee.strftime("%Y-%m-%d %H:%M"),
                 t("departure_time", lang): train.depart.strftime("%Y-%m-%d %H:%M"),
                 t("test_drivers", lang): 1,
-                t("locomotives", lang): 2
+                t("locomotives", lang): 2,
+                t("Dépôt", lang): train.depot
             })
         # FR : Ajouter ici d'autres types si besoin
         # EN : Add other types here if needed
@@ -663,13 +785,14 @@ with tab5:
         st.dataframe(pd.DataFrame(details), use_container_width=True)
     else:
         st.info(t("no_requirements", lang))
-
+    st.divider()
     # FR : Affichage par jour (déjà présent)
     # EN : Display by day (already present)
     if requirements_par_jour:
         st.write(f"### {t('requirements_by_day', lang)}")
         fig = creer_graphique_requirements_par_jour(requirements_par_jour, t, lang)
-        fig_depot.update_layout(
+        # Remplace fig_depot.update_layout(...) par fig.update_layout(...)
+        fig.update_layout(
             title=dict(
                 text=t("train_list", lang),
                 font=dict(size=22, family="Segoe UI, Arial"),
@@ -719,18 +842,22 @@ with tab5:
             mime="text/csv"
         )
     else:
-        st.info(t("no_requirements", lang))
-        
+        st.info(t("no_requirements", lang))        
 # ---------------------------------------------------------------------------
 # FR : ONGLET 6 : MINI-JEU DE GESTION DES VOIES
 # EN : TAB 6: WAGON MANAGEMENT MINI-GAME
 # ---------------------------------------------------------------------------
-
-with tab6:
+elif selected_tab == "🎮 " + t("Gestion des voies", lang):
     import Jeu
-    Jeu.main(lang)
-
-
-
-
-
+    Jeu.main(lang)   
+# ---------------------------------------------------------------------------
+# FR : ONGLET 7 : Carte du Danemark
+# EN : TAB 7: Denmark map
+# ---------------------------------------------------------------------------
+elif selected_tab == "🗺️ " + t("Carte", lang):
+    from Carte import afficher_carte_depots
+    from Carte import afficher_carte_etat_trains_heure
+    st.subheader(t("Carte des dépôts", lang))
+    afficher_carte_depots(st.session_state.simulation, t, lang)
+    st.divider()
+    afficher_carte_etat_trains_heure(st.session_state.simulation, t, lang)
