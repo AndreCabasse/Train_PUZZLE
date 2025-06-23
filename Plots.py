@@ -54,7 +54,7 @@ def creer_graphique_trains_par_longueur_detaille(simulation, t, instant, lang, d
                             base=position_actuelle,
                             orientation='h',
                             marker=dict(color="red", line=dict(color="black", width=1)),
-                            width=0.3,
+                            width=0.01,
                             name=f"{train.nom} - {t('locomotive', lang)} 1",
                             hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Locomotive<br>Longueur: 19m<extra></extra>"
                         ))
@@ -66,7 +66,7 @@ def creer_graphique_trains_par_longueur_detaille(simulation, t, instant, lang, d
                                 base=position_actuelle,
                                 orientation='h',
                                 marker=dict(color="blue", line=dict(color="black", width=1)),
-                                width=0.3,
+                                width=0.01,
                                 name=f"{train.nom} - {t('wagon', lang)} {i + 1}",
                                 hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Wagon {i + 1}<br>Longueur: 14m<extra></extra>"
                             ))
@@ -79,7 +79,7 @@ def creer_graphique_trains_par_longueur_detaille(simulation, t, instant, lang, d
                                 base=position_actuelle,
                                 orientation='h',
                                 marker=dict(color="blue", line=dict(color="black", width=1)),
-                                width=0.3,
+                                width=0.01,
                                 name=f"{train.nom} - {t('wagon', lang)} {i + 1}",
                                 hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Wagon {i + 1}<br>Longueur: 14m<extra></extra>"
                             ))
@@ -90,7 +90,7 @@ def creer_graphique_trains_par_longueur_detaille(simulation, t, instant, lang, d
                             base=position_actuelle,
                             orientation='h',
                             marker=dict(color="red", line=dict(color="black", width=1)),
-                            width=0.3,
+                            width=0.01,
                             name=f"{train.nom} - {t('locomotive', lang)} 1",
                             hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Locomotive<br>Longueur: 19m<extra></extra>"
                         ))
@@ -102,7 +102,7 @@ def creer_graphique_trains_par_longueur_detaille(simulation, t, instant, lang, d
                         base=position_actuelle,
                         orientation='h',
                         marker=dict(color="red", line=dict(color="black", width=1)),
-                        width=0.3,
+                        width=0.01,
                         name=f"{train.nom} - {t('locomotive', lang)} 1",
                         hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Locomotive<br>Longueur: 19m<extra></extra>"
                     ))
@@ -114,7 +114,7 @@ def creer_graphique_trains_par_longueur_detaille(simulation, t, instant, lang, d
                             base=position_actuelle,
                             orientation='h',
                             marker=dict(color="blue", line=dict(color="black", width=1)),
-                            width=0.3,
+                            width=0.01,
                             name=f"{train.nom} - {t('wagon', lang)} {i + 1}",
                             hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Wagon {i + 1}<br>Longueur: 14m<extra></extra>"
                         ))
@@ -125,7 +125,7 @@ def creer_graphique_trains_par_longueur_detaille(simulation, t, instant, lang, d
                         base=position_actuelle,
                         orientation='h',
                         marker=dict(color="red", line=dict(color="black", width=1)),
-                        width=0.3,
+                        width=0.01,
                         name=f"{train.nom} - {t('locomotive', lang)} 2",
                         hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Locomotive<br>Longueur: 19m<extra></extra>"
                     ))
@@ -138,7 +138,7 @@ def creer_graphique_trains_par_longueur_detaille(simulation, t, instant, lang, d
                             base=position_actuelle,
                             orientation='h',
                             marker=dict(color="blue", line=dict(color="black", width=1)),
-                            width=0.3,
+                            width=0.15,
                             name=f"{train.nom} - {t('wagon', lang)} {i + 1}",
                             hovertemplate=f"Train: {train.nom}<br>Type: {train.type}<br>Wagon {i + 1}<br>Longueur: 14m<extra></extra>"
                         ))
@@ -284,8 +284,9 @@ def creer_gantt_occupation_depot(simulation, depot, t, lang):
         hover_data=["Train", "Début", "Fin", "Électrique"]
     )
     fig.update_yaxes(autorange="reversed")
+    nb_voies = len(df["Voie"].unique())
     fig.update_layout(
-        height=400,
+        height=max(250, 60 * nb_voies),  # hauteur dynamique
         plot_bgcolor="#fff8f8",
         paper_bgcolor="#fbe9e7",
         font=dict(family="Segoe UI, Arial", size=14, color="#b71c1c"),
